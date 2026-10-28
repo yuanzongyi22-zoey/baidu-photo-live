@@ -6,3 +6,8 @@ vite.config.d.ts
 .env
 .env.*
 !.env.example
+node_modules/
+.next/
+dist/
+.env.local
+data/raw/*.normalized.json
