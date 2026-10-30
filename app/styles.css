@@ -107,7 +107,10 @@ img { display: block; }
 .brand-paw { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; background: var(--blue); color: #fff; font: 800 18px/1 Arial; transform: rotate(-8deg); }
 .small-pill { padding: 8px 12px; border-radius: 18px; background: #eff4ff; color: var(--blue); font-size: 13px; font-weight: 600; }
 
-.home-content { height: calc(100% - 52px); display: flex; flex-direction: column; padding-top: 0; padding-bottom: 20px; overflow: hidden; }
+.home-v2 { display: flex; flex-direction: column; }
+.home-v2 > .brand-header { flex: 0 0 62px; }
+.home-content { min-height: 0; flex: 1; display: flex; flex-direction: column; padding-top: 4px; padding-bottom: 20px; overflow: hidden; }
+.home-content > .project-top-actions, .home-content > .create-row, .home-content > .section-heading { flex-shrink: 0; }
 .banner-card { min-height: 166px; display: flex; position: relative; overflow: hidden; padding: 22px; border-radius: 18px; color: #fff; background: linear-gradient(135deg, #111f68 0%, #245eff 60%, #65acff 100%); box-shadow: 0 12px 30px rgb(36 104 242 / 24%); }
 .banner-card::before { content: ''; position: absolute; width: 180px; height: 180px; right: -70px; top: -85px; border: 36px solid rgb(255 255 255 / 10%); border-radius: 50%; }
 .banner-copy { position: relative; z-index: 2; }

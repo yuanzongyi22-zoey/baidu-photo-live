@@ -15,9 +15,6 @@ type Project = {
   id: number
   name: string
   createdAt: string
-  ftpStatus: FtpStatus
-  cameraStatus: CameraStatus
-  preset: string
   photos: Photo[]
 }
 
@@ -34,9 +31,6 @@ const DEFAULT_PROJECT: Project = {
   id: 1,
   name: '2026春日品牌发布会',
   createdAt: '2026-10-23 15:59',
-  ftpStatus: 'connected',
-  cameraStatus: 'failed',
-  preset: '自然清透',
   photos: DEMO_IMAGES.slice(0, 6).map((url, index) => ({
     id: index + 1,
     url,
@@ -79,6 +73,9 @@ export default function App() {
   const [ftpPass, setFtpPass] = useState('123456')
   const [scanning, setScanning] = useState(false)
   const [ftpEditing, setFtpEditing] = useState(false)
+  const [ftpStatus, setFtpStatus] = useState<FtpStatus>('disconnected')
+  const [cameraStatus, setCameraStatus] = useState<CameraStatus>('failed')
+  const [savedPreset, setSavedPreset] = useState('无预设')
   const [presetDraft, setPresetDraft] = useState('无预设')
   const [presetTab, setPresetTab] = useState<'recommended' | 'mine'>('recommended')
   const [aiSelect, setAiSelect] = useState(true)
@@ -141,25 +138,26 @@ export default function App() {
       id,
       name,
       createdAt: nowStamp(),
-      ftpStatus: 'disconnected',
-      cameraStatus: 'failed',
-      preset: '无预设',
       photos: [],
     }
     setProjects((items) => [next, ...items])
     setActiveProjectId(id)
     setNameInput('')
     setScreen('project')
-    autoPresetRef.current = true
-    window.setTimeout(() => setSheet('ftp'), 280)
+    autoPresetRef.current = ftpStatus !== 'connected'
+    if (ftpStatus !== 'connected') {
+      setFtpEditing(false)
+      setScanning(false)
+      setSheet('ftp')
+    }
   }
 
   const connectFtp = (fail = false) => {
-    patchProject(activeProjectId, { ftpStatus: 'connecting' })
+    setFtpStatus('connecting')
     notify('正在连接 AI 修图客户端…')
     window.setTimeout(() => {
-      if (fail) { patchProject(activeProjectId, { ftpStatus: 'failed' }); notify('连接失败，请检查服务器地址和端口后重试'); return }
-      patchProject(activeProjectId, { ftpStatus: 'connected' })
+      if (fail) { setFtpStatus('failed'); notify('连接失败，请检查服务器地址和端口后重试'); return }
+      setFtpStatus('connected')
       setFtpEditing(false)
       notify('FTP 已连接电脑')
     }, 900)
@@ -184,15 +182,20 @@ export default function App() {
     })
   }
 
+  useEffect(() => {
+    if (screen !== 'project' || !project || project.photos.length || ftpStatus !== 'connected' || cameraStatus !== 'connected' || sheet) return
+    const timer = window.setTimeout(() => startShooting(project.id), 500)
+    return () => window.clearTimeout(timer)
+  }, [screen, project?.id, project?.photos.length, ftpStatus, cameraStatus, sheet])
+
   const applyPreset = () => {
-    patchProject(activeProjectId, { preset: presetDraft })
+    setSavedPreset(presetDraft)
     setSheet(null)
     notify('预设已应用')
-    if (project && project.photos.length === 0 && project.cameraStatus === 'connected') window.setTimeout(() => startShooting(activeProjectId), 500)
   }
 
   const openPreset = () => {
-    setPresetDraft(project?.preset || '无预设')
+    setPresetDraft(savedPreset)
     setSheet('preset')
   }
 
@@ -221,17 +224,16 @@ export default function App() {
   }
 
   const cameraTap = () => {
-    if (!project) return
-    if (project.cameraStatus !== 'connected') {
+    if (cameraStatus !== 'connected') {
       setSheet('cameraGuide')
       return
     }
-    patchProject(project.id, { cameraStatus: 'failed' })
+    setCameraStatus('failed')
     notify('相机已断开连接')
   }
 
   const simulateCameraConnected = () => {
-    patchProject(activeProjectId, { cameraStatus: 'connected' })
+    setCameraStatus('connected')
     setSheet(null)
     notify('相机与手机连接成功')
   }
@@ -287,6 +289,16 @@ export default function App() {
     </main></div>
   }
   // __RENDER__
+  const renderConnectionActions = () => (
+    <div className="project-top-actions">
+      <button className={`ftp-top ${ftpStatus === 'connected' ? 'connected' : 'disconnected'}`} onClick={openFtpManually}><span className="flat-icon"><ComputerIcon /></span><strong>{ftpStatus === 'connected' ? 'FTP已连接' : ftpStatus === 'connecting' ? 'FTP连接中' : 'FTP未连接'}</strong><em className={ftpStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} /></button>
+      <button className={`camera-status-card ${cameraStatus === 'connected' ? 'on' : 'off'}`} onClick={cameraTap}>
+        <span className="flat-icon cam-icon"><CameraIcon /></span><strong>{cameraStatus === 'connected' ? '相机已连接' : '相机未连接'}</strong><em className={cameraStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} />
+      </button>
+      <button className={`preset-top ${ftpStatus !== 'connected' ? 'locked' : ''}`} title={savedPreset} onClick={() => ftpStatus === 'connected' ? openPreset() : notify('FTP 连接成功后可设置预设')}><span className="flat-icon"><PresetIcon /></span><strong>预设</strong></button>
+    </div>
+  )
+
   const renderHome = () => (
     <div className="screen home-v2">
       <header className="brand-header">
@@ -294,6 +306,7 @@ export default function App() {
         <button className="header-me" onClick={() => setScreen('me')} aria-label="我的"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></button>
       </header>
       <main className="content home-content">
+        {renderConnectionActions()}
         <div className="create-row">
           <div className="create-card-v2">
             <div className="create-card-copy">
@@ -349,13 +362,7 @@ export default function App() {
     <div className="screen project-screen">
       {topbar(project.name, () => setScreen('home'), <button className="text-action" onClick={() => { setNameInput(project.name); setScreen('settings') }}>设置</button>)}
       <main className="content project-content">
-        <div className="project-top-actions">
-          <button className={`ftp-top ${project.ftpStatus === 'connected' ? 'connected' : 'disconnected'}`} onClick={openFtpManually}><span className="flat-icon"><ComputerIcon /></span><strong>{project.ftpStatus === 'connected' ? 'FTP已连接' : 'FTP未连接'}</strong><em className={project.ftpStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} /></button>
-          <button className={`camera-status-card ${project.cameraStatus === 'connected' ? 'on' : 'off'}`} onClick={cameraTap}>
-            <span className="flat-icon cam-icon"><CameraIcon /></span><strong>{project.cameraStatus === 'connected' ? '相机已连接' : '相机未连接'}</strong><em className={project.cameraStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} />
-          </button>
-          <button className={`preset-top ${project.ftpStatus !== 'connected' ? 'locked' : ''}`} onClick={() => project.ftpStatus === 'connected' ? openPreset() : notify('FTP 连接成功后可设置预设')}><span className="flat-icon"><PresetIcon /></span><strong>预设</strong></button>
-        </div>
+        {renderConnectionActions()}
         <div className="upload-summary-line"><span>已上传照片至百度网盘AI修图客户端</span><strong>{uploaded}/{project.photos.length}</strong></div>
         {!project.photos.length ? (
           <div className="empty-gallery tall"><span>▧</span><strong>还没有照片</strong><p>连接相机与电脑后，拍摄照片将自动上传</p></div>
@@ -440,7 +447,7 @@ export default function App() {
             </button>
             <p className="scan-hint">将电脑端二维码放入框内，点击二维码模拟识别</p>
           </div>
-        ) : project.ftpStatus === 'connected' && !ftpEditing ? (
+        ) : ftpStatus === 'connected' && !ftpEditing ? (
           <div className="ftp-success-card">
             <div className="ftp-success-head"><span className="ok-icon">✓</span><strong>FTP连接成功</strong><button className="change-link" onClick={() => setFtpEditing(true)}>更换连接</button></div>
             <div className="ftp-info-rows">
@@ -464,13 +471,13 @@ export default function App() {
             </div>
             <div className="sheet-button-row ftp-actions">
               <button className="ghost-button" onClick={() => setScanning(true)}>扫码录入</button>
-              <button className="primary-button" disabled={!server.trim() || !port.trim() || !ftpUser.trim() || !ftpPass.trim() || project.ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{project.ftpStatus === 'connecting' ? '连接中…' : project.ftpStatus === 'connected' ? '重新连接' : '连接'}</button>
+              <button className="primary-button" disabled={!server.trim() || !port.trim() || !ftpUser.trim() || !ftpPass.trim() || ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{ftpStatus === 'connecting' ? '连接中…' : ftpStatus === 'connected' ? '重新连接' : '连接'}</button>
             </div>
           </>
         )}
-        {project.ftpStatus === 'connected' && !ftpEditing && !scanning && <button className="primary-button ftp-next" onClick={() => { if (autoPresetRef.current) { autoPresetRef.current = false; openPreset() } else setSheet(null) }}>{autoPresetRef.current ? '下一步' : '我知道了'}</button>}
+        {ftpStatus === 'connected' && !ftpEditing && !scanning && <button className="primary-button ftp-next" onClick={() => { if (autoPresetRef.current) { autoPresetRef.current = false; openPreset() } else setSheet(null) }}>{autoPresetRef.current ? '下一步' : '我知道了'}</button>}
       </>}
-      {sheet === 'preset' && <><div className="sheet-title"><button onClick={() => { setPresetDraft(project.preset); setSheet(null) }}>取消</button><strong>预设</strong><button className="preset-reset" onClick={() => setPresetDraft('无预设')}>重置</button></div><div className="preset-panel"><div className="preset-sync-tip">{presetTab === 'recommended' ? '同步百度网盘AI修图客户端推荐预设' : '同步当前账号在百度网盘AI修图客户端的预设'}</div><div className="preset-tabs"><button className={presetTab === 'recommended' ? 'active' : ''} onClick={() => setPresetTab('recommended')}>推荐预设</button><button className={presetTab === 'mine' ? 'active' : ''} onClick={() => setPresetTab('mine')}>我的预设</button></div><div className="preset-name-list">{(presetTab === 'recommended' ? RECOMMENDED_PRESETS : MY_PRESETS).map((name) => <button className={presetDraft === name ? 'active' : ''} key={name} onClick={() => setPresetDraft(name)}><span>{name}</span>{presetDraft === name && <b>✓</b>}</button>)}</div></div><button className="primary-button sheet-confirm" onClick={applyPreset}>应用</button></>}
+      {sheet === 'preset' && <><div className="sheet-title"><button onClick={() => { setPresetDraft(savedPreset); setSheet(null) }}>取消</button><strong>预设</strong><button className="preset-reset" onClick={() => setPresetDraft('无预设')}>重置</button></div><div className="preset-panel"><div className="preset-sync-tip">{presetTab === 'recommended' ? '同步百度网盘AI修图客户端推荐预设' : '同步当前账号在百度网盘AI修图客户端的预设'}</div><div className="preset-tabs"><button className={presetTab === 'recommended' ? 'active' : ''} onClick={() => setPresetTab('recommended')}>推荐预设</button><button className={presetTab === 'mine' ? 'active' : ''} onClick={() => setPresetTab('mine')}>我的预设</button></div><div className="preset-name-list">{(presetTab === 'recommended' ? RECOMMENDED_PRESETS : MY_PRESETS).map((name) => <button className={presetDraft === name ? 'active' : ''} key={name} onClick={() => setPresetDraft(name)}><span>{name}</span>{presetDraft === name && <b>✓</b>}</button>)}</div></div><button className="primary-button sheet-confirm" onClick={applyPreset}>应用</button></>}
       {sheet === 'projectMenu' && <><button className="sheet-option center" onClick={() => { const t = projects.find((p) => p.id === menuProjectId); setNameInput(t ? t.name : ''); setSheet('rename') }}>重命名项目</button><button className="sheet-option center danger" onClick={() => setSheet('deleteConfirm')}>删除项目</button></>}
       {sheet === 'rename' && <><div className="sheet-title"><button onClick={() => setSheet('projectMenu')}>‹ 返回</button><strong>重命名项目</strong><span /></div><div className="name-input-wrap sheet-input"><input className="text-field" value={nameInput} onChange={(e) => setNameInput(e.target.value)} maxLength={60} autoFocus /><span>{Array.from(nameInput).length}/60</span></div><button className="primary-button sheet-confirm" onClick={doRename}>保存</button></>}
       {sheet === 'deleteConfirm' && <div className="dialog-card delete-confirm-dialog" onClick={(e) => e.stopPropagation()}><h3>删除项目</h3><p>此项目仅在该列表删除，不会删除客户端的项目。</p><div className="dialog-actions"><button onClick={() => setSheet('projectMenu')}>取消</button><button className="danger" onClick={doDelete}>删除</button></div></div>}
