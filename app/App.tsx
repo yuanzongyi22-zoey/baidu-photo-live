@@ -526,7 +526,34 @@ export default function App() {
         {/* Demo comparison only; production must use original and PC-rendered image URLs. */}
         <img className={showOriginal ? 'preview-original' : 'preview-edited'} src={previewPhoto.url} alt={showOriginal ? '预设应用前的原图' : '预设效果预览'} onClick={(e) => e.stopPropagation()} />
         <button className="preview-arrow right" onClick={(e) => { e.stopPropagation(); switchPreviewPhoto(1) }} aria-label="下一张">›</button>
-        <button className="preview-compare" aria-pressed={showOriginal} onTouchStart={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setShowOriginal((value) => !value) }}>{showOriginal ? '查看效果图' : '查看原图'}</button>
+        <button
+          className="preview-compare"
+          aria-label="按住查看原图"
+          title="按住查看原图"
+          aria-pressed={showOriginal}
+          onPointerDown={(e) => {
+            e.stopPropagation()
+            if (!e.isPrimary || e.button !== 0) return
+            e.currentTarget.setPointerCapture(e.pointerId)
+            setShowOriginal(true)
+          }}
+          onPointerUp={(e) => { e.stopPropagation(); setShowOriginal(false) }}
+          onPointerCancel={() => setShowOriginal(false)}
+          onLostPointerCapture={() => setShowOriginal(false)}
+          onBlur={() => setShowOriginal(false)}
+          onKeyDown={(e) => {
+            if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setShowOriginal(true) }
+          }}
+          onKeyUp={(e) => {
+            if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setShowOriginal(false) }
+          }}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.preventDefault()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path className="compare-half" d="M10 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4z" /><path d="M15 5h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3M12 2v20" /></svg>
+        </button>
       </div>}
       {toast && <div className="toast">{toast}</div>}
     </div>
