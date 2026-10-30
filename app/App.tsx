@@ -81,6 +81,7 @@ export default function App() {
   const [aiSelect, setAiSelect] = useState(true)
   const [aiBeauty, setAiBeauty] = useState(true)
   const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null)
+  const [showOriginal, setShowOriginal] = useState(false)
   const [photoFilter, setPhotoFilter] = useState<PhotoFilter>('all')
   const [photoSort, setPhotoSort] = useState<PhotoSort>('newest')
   const [phone, setPhone] = useState('')
@@ -96,6 +97,7 @@ export default function App() {
   const uploaded = project ? project.photos.filter((p) => p.status === 'success').length : 0
 
   useEffect(() => () => { if (toastTimer.current) window.clearTimeout(toastTimer.current) }, [])
+  useEffect(() => { setShowOriginal(false) }, [previewPhoto?.id])
 
   useEffect(() => {
     if (screen !== 'create') return
@@ -518,7 +520,14 @@ export default function App() {
   return <div className="device-stage"><div className="iphone-frame">
     <div className="dynamic-island" aria-hidden="true"><i /></div>
     <div className="app-shell">{content}{renderSheet()}
-      {previewPhoto && <div className="photo-viewer" onClick={() => setPreviewPhoto(null)} onTouchStart={(e) => { photoTouchStartX.current = e.touches[0].clientX }} onTouchEnd={(e) => finishPreviewSwipe(e.changedTouches[0].clientX)}><header><button onClick={() => setPreviewPhoto(null)}>‹</button><span /><span /></header><button className="preview-arrow left" onClick={(e) => { e.stopPropagation(); switchPreviewPhoto(-1) }} aria-label="上一张">‹</button><img src={previewPhoto.url} alt="照片预览" onClick={(e) => e.stopPropagation()} /><button className="preview-arrow right" onClick={(e) => { e.stopPropagation(); switchPreviewPhoto(1) }} aria-label="下一张">›</button></div>}
+      {previewPhoto && <div className="photo-viewer" onClick={() => setPreviewPhoto(null)} onTouchStart={(e) => { photoTouchStartX.current = e.touches[0].clientX }} onTouchEnd={(e) => finishPreviewSwipe(e.changedTouches[0].clientX)}>
+        <header><button aria-label="关闭照片预览" onClick={() => setPreviewPhoto(null)}>‹</button><span /><span /></header>
+        <button className="preview-arrow left" onClick={(e) => { e.stopPropagation(); switchPreviewPhoto(-1) }} aria-label="上一张">‹</button>
+        {/* Demo comparison only; production must use original and PC-rendered image URLs. */}
+        <img className={showOriginal ? 'preview-original' : 'preview-edited'} src={previewPhoto.url} alt={showOriginal ? '预设应用前的原图' : '预设效果预览'} onClick={(e) => e.stopPropagation()} />
+        <button className="preview-arrow right" onClick={(e) => { e.stopPropagation(); switchPreviewPhoto(1) }} aria-label="下一张">›</button>
+        <button className="preview-compare" aria-pressed={showOriginal} onTouchStart={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setShowOriginal((value) => !value) }}>{showOriginal ? '查看效果图' : '查看原图'}</button>
+      </div>}
       {toast && <div className="toast">{toast}</div>}
     </div>
     <div className="home-indicator" aria-hidden="true" />
