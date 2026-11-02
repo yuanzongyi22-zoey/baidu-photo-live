@@ -2,13 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-type Screen = 'login' | 'home' | 'create' | 'project' | 'ftp' | 'settings' | 'tutorial' | 'me'
+type Screen = 'login' | 'home' | 'create' | 'project' | 'ftp' | 'cameras' | 'settings' | 'tutorial' | 'me'
 type Sheet = 'ftp' | 'preset' | 'projectMenu' | 'rename' | 'deleteConfirm' | 'filter' | 'logout' | 'customerService' | 'cameraGuide' | null
 type PhotoFilter = 'all' | 'success' | 'failed'
 type PhotoSort = 'newest' | 'oldest'
 type FtpStatus = 'disconnected' | 'connecting' | 'connected' | 'failed'
 type CameraStatus = 'connected' | 'failed'
 type PhotoStatus = 'uploading' | 'success' | 'failed'
+type UploadFormat = 'JPG' | 'RAW' | 'JPG+RAW'
+type ConnectedCamera = { id: string; name: string; model: string; hasSdCard: boolean; format: UploadFormat }
 
 type Photo = { id: number; url: string; status: PhotoStatus }
 type Project = {
@@ -86,6 +88,11 @@ export default function App() {
   const [activeComputerId, setActiveComputerId] = useState<string | null>(null)
   const [selectedComputerId, setSelectedComputerId] = useState<string | null>(DISCOVERED_COMPUTERS[0].id)
   const [searchingComputers, setSearchingComputers] = useState(false)
+  const [connectedCameras, setConnectedCameras] = useState<ConnectedCamera[]>([
+    { id: 'camera-a', name: '相机 1', model: 'Sony α7 IV', hasSdCard: true, format: 'JPG' },
+    { id: 'camera-b', name: '相机 2', model: 'Canon EOS R6', hasSdCard: false, format: 'JPG' },
+  ])
+  const [activeCameraId, setActiveCameraId] = useState('camera-a')
   const [presetDraft, setPresetDraft] = useState('无预设')
   const [presetTab, setPresetTab] = useState<'recommended' | 'mine'>('recommended')
   const [aiSelect, setAiSelect] = useState(true)
@@ -266,8 +273,7 @@ export default function App() {
       setSheet('cameraGuide')
       return
     }
-    patchProject(project.id, { cameraStatus: 'failed' })
-    notify('相机已断开连接')
+    setScreen('cameras')
   }
 
   const simulateCameraConnected = () => {
@@ -497,6 +503,22 @@ export default function App() {
       </main>
     </div>
   )
+  const renderCameraPage = () => (
+    <div className="screen camera-page">
+      {topbar('相机选择', () => setScreen('project'))}
+      <main className="content camera-page-content">
+        <p className="camera-page-tip">选择一台相机接收照片。开启其他相机时，当前相机会自动关闭。</p>
+        <div className="camera-device-list">{connectedCameras.map((camera) => {
+          const active = activeCameraId === camera.id
+          return <section className={`camera-device-card ${active ? 'active' : ''}`} key={camera.id}>
+            <div className="camera-device-head"><span className="camera-device-symbol"><CameraIcon /></span><div><strong>{camera.name}</strong><small>{camera.model} · 有线连接</small></div><button className={`camera-switch ${active ? 'on' : ''}`} role="switch" aria-checked={active} aria-label={`${camera.name}照片传入手机`} onClick={() => setActiveCameraId(camera.id)}><i /></button></div>
+            <div className="camera-format-row"><span>上传图片类型</span><div>{(['JPG', 'RAW', 'JPG+RAW'] as UploadFormat[]).map((format) => <button key={format} className={camera.format === format ? 'selected' : ''} onClick={() => setConnectedCameras((items) => items.map((item) => item.id === camera.id ? { ...item, format } : item))}>{format}</button>)}</div></div>
+            {!camera.hasSdCard && <p className="camera-sd-warning">未检测到sd卡，图片直接传入手机，上传成功后手机内图片将被删除</p>}
+          </section>
+        })}</div>
+      </main>
+    </div>
+  )
   // __SHEETS__
   const renderSheet = () => {
     if (!sheet) return null
@@ -537,6 +559,7 @@ export default function App() {
   else if (screen === 'create') content = renderCreate()
   else if (screen === 'project') content = renderProject()
   else if (screen === 'ftp') content = renderFtpPage()
+  else if (screen === 'cameras') content = renderCameraPage()
   else if (screen === 'settings') content = renderSettings()
   else if (screen === 'me') content = renderMe()
   else content = renderTutorial()

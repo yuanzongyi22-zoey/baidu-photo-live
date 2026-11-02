@@ -375,6 +375,30 @@ img { display: block; }
 .scan-page-panel p { margin: 18px 0 22px; color: #838995; font-size: 12px; }
 .scan-page-panel .scan-frame { margin: 0; }
 .scan-back { height: 44px; }
+.camera-page { display: flex; flex-direction: column; background: var(--page); }
+.camera-page > .topbar { flex: 0 0 62px; }
+.camera-page-content { min-height: 0; flex: 1; padding-top: 14px; padding-bottom: 38px; overflow-y: auto; }
+.camera-page-tip { margin: 0 2px 14px; color: #747b86; font-size: 12px; line-height: 18px; }
+.camera-device-list { display: grid; gap: 12px; }
+.camera-device-card { padding: 15px 14px 13px; border: 1px solid #e4e7ec; border-radius: 14px; background: #fff; }
+.camera-device-card.active { border-color: #b9d0ff; box-shadow: 0 5px 16px rgb(36 104 242 / 8%); }
+.camera-device-head { display: flex; align-items: center; gap: 11px; }
+.camera-device-symbol { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 42px; border-radius: 11px; color: var(--blue); background: #eaf1ff; }
+.camera-device-symbol svg { width: 23px; height: 23px; fill: currentColor; }
+.camera-device-head > div { min-width: 0; flex: 1; }
+.camera-device-head strong, .camera-device-head small { display: block; }
+.camera-device-head strong { margin-bottom: 4px; font-size: 15px; }
+.camera-device-head small { color: #9197a1; font-size: 11px; }
+.camera-switch { position: relative; width: 44px; height: 26px; flex: 0 0 44px; padding: 0; border-radius: 13px; background: #d9dde4; transition: background .2s; }
+.camera-switch i { position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgb(0 0 0 / 18%); transition: transform .2s; }
+.camera-switch.on { background: var(--blue); }
+.camera-switch.on i { transform: translateX(18px); }
+.camera-format-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.camera-format-row > span { color: #666d78; font-size: 12px; white-space: nowrap; }
+.camera-format-row > div { display: flex; gap: 5px; }
+.camera-format-row button { min-width: 46px; height: 30px; padding: 0 8px; border-radius: 7px; background: #f1f3f6; color: #626975; font-size: 10px; }
+.camera-format-row button.selected { color: #fff; background: var(--blue); }
+.camera-sd-warning { margin: 10px 0 0; color: #e34d4d; font-size: 11px; line-height: 17px; }
 .ftp-field label { display: block; padding-left: 2px; color: #333; font-size: 12px; }
 .ftp-field label i { margin-right: 3px; color: #e34d4d; font-style: normal; }
 .ftp-field input { width: 100%; height: 44px; margin-top: 7px; padding: 0 12px; outline: 0; border: 1px solid #e2e5ea; border-radius: 7px; background: #fafbfc; font-size: 13px; }
