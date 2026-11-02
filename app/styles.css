@@ -362,6 +362,9 @@ img { display: block; }
 .ftp-page > .topbar { flex: 0 0 62px; }
 .ftp-page-content { min-height: 0; flex: 1; padding-top: 12px; padding-bottom: 112px; overflow-y: auto; }
 .ftp-page .ftp-success-card { margin-top: 8px; background: #fff; }
+.ftp-success-action, .ftp-search-scan-action, .preset-page-action { position: absolute; left: 16px; right: 16px; bottom: 38px; z-index: 10; padding-top: 10px; background: var(--page); }
+.ftp-success-action .ftp-next { height: 50px; margin: 0; }
+.ftp-search-scan-action .scan-entry { background: #fff; }
 .manual-server-fields { display: grid; grid-template-columns: 1.55fr .75fr; gap: 10px; margin: 14px 0 12px; }
 .manual-server-fields label > span { display: block; margin: 0 2px 7px; color: #444a55; font-size: 12px; }
 .manual-server-fields input { width: 100%; height: 46px; padding: 0 12px; outline: 0; border: 1px solid #dfe3e9; border-radius: 9px; background: #fff; font-size: 13px; }
@@ -375,6 +378,13 @@ img { display: block; }
 .scan-page-panel p { margin: 18px 0 22px; color: #838995; font-size: 12px; }
 .scan-page-panel .scan-frame { margin: 0; }
 .scan-back { height: 44px; }
+.preset-page { display: flex; flex-direction: column; background: var(--page); }
+.preset-page > .topbar { flex: 0 0 62px; }
+.preset-page-content { min-height: 0; flex: 1; padding-top: 12px; padding-bottom: 108px; overflow: hidden; }
+.preset-page .preset-panel { height: 100%; display: flex; flex-direction: column; padding: 8px 10px 4px; }
+.preset-page .preset-name-list { min-height: 0; max-height: none; flex: 1; overflow-y: auto; }
+.preset-page-action .primary-button { width: 100%; height: 50px; }
+.topbar-action .preset-reset { padding: 8px 0; background: transparent; }
 .camera-page { display: flex; flex-direction: column; background: var(--page); }
 .camera-page > .topbar { flex: 0 0 62px; }
 .camera-page-content { min-height: 0; flex: 1; padding-top: 14px; padding-bottom: 38px; overflow-y: auto; }

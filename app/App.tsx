@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-type Screen = 'login' | 'home' | 'create' | 'project' | 'ftp' | 'cameras' | 'settings' | 'tutorial' | 'me'
+type Screen = 'login' | 'home' | 'create' | 'project' | 'ftp' | 'preset' | 'cameras' | 'settings' | 'tutorial' | 'me'
 type Sheet = 'ftp' | 'preset' | 'projectMenu' | 'rename' | 'deleteConfirm' | 'filter' | 'logout' | 'customerService' | 'cameraGuide' | null
 type PhotoFilter = 'all' | 'success' | 'failed'
 type PhotoSort = 'newest' | 'oldest'
@@ -211,6 +211,21 @@ export default function App() {
     }, 900)
   }
 
+  const connectScannedComputer = () => {
+    const target = DISCOVERED_COMPUTERS[0]
+    setServer(target.address)
+    setPort(target.port)
+    setSelectedComputerId(target.id)
+    setScanning(false)
+    patchProject(activeProjectId, { ftpStatus: 'connecting' })
+    window.setTimeout(() => {
+      setActiveComputerId(target.id)
+      patchProject(activeProjectId, { ftpStatus: 'connected' })
+      setFtpEditing(false)
+      notify('FTP连接成功')
+    }, 500)
+  }
+
   const openFtpManually = () => {
     autoPresetRef.current = false
     setFtpEditing(false)
@@ -233,14 +248,14 @@ export default function App() {
 
   const applyPreset = () => {
     patchProject(activeProjectId, { preset: presetDraft })
-    setSheet(null)
+    setScreen('project')
     notify('预设已应用')
     if (project && project.photos.length === 0 && project.cameraStatus === 'connected') window.setTimeout(() => startShooting(activeProjectId), 500)
   }
 
   const openPreset = () => {
     setPresetDraft(project?.preset || '无预设')
-    setSheet('preset')
+    setScreen('preset')
   }
 
   const retryPhoto = (photoId: number) => {
@@ -474,23 +489,22 @@ export default function App() {
   )
   const renderFtpPage = () => (
     <div className="screen ftp-page">
-      {topbar('FTP服务器连接', closeFtpPage)}
+      {topbar('FTP服务器连接', scanning ? () => setScanning(false) : closeFtpPage)}
       <main className="content ftp-page-content">
         {project.ftpStatus === 'connected' && !ftpEditing ? <>
           <div className="ftp-success-card">
             <div className="ftp-success-head"><span className="ok-icon">✓</span><strong>FTP连接成功</strong><button className="change-link" onClick={() => { setFtpEditing(true); startComputerSearch() }}>更换连接</button></div>
             <div className="ftp-info-rows"><div><span>服务器地址</span><b>{server}</b></div><div><span>端口</span><b>{port}</b></div></div>
           </div>
-          <button className="primary-button ftp-next" onClick={() => { if (autoPresetRef.current) { autoPresetRef.current = false; setScreen('project'); window.setTimeout(openPreset, 0) } else closeFtpPage() }}>{autoPresetRef.current ? '下一步' : '我知道了'}</button>
+          <div className="ftp-success-action"><button className="primary-button ftp-next" onClick={() => { if (autoPresetRef.current) { autoPresetRef.current = false; openPreset() } else closeFtpPage() }}>{autoPresetRef.current ? '下一步' : '我知道了'}</button></div>
         </> : scanning ? <div className="scan-page-panel">
-          <button className="scan-frame" onClick={() => { setServer('192.168.43.18'); setPort('2121'); setSelectedComputerId(DISCOVERED_COMPUTERS[0].id); setScanning(false); notify('已识别电脑端二维码') }}>
+          <button className="scan-frame" onClick={connectScannedComputer}>
             <svg viewBox="0 0 21 21" className="scan-qr" aria-hidden="true">{Array.from({ length: 21 }, (_, r) => Array.from({ length: 21 }, (_, c) => ((r * 7 + c * 13 + r * c) % 5) < 2 ? <rect key={r * 21 + c} x={c} y={r} width="1" height="1" /> : null))}</svg>
           </button>
           <p>将电脑端二维码放入框内，点击二维码模拟识别</p>
-          <button className="secondary-button scan-back" onClick={() => setScanning(false)}>返回电脑搜索</button>
         </div> : <>
           <div className="ftp-discovery-tip"><strong>搜索附近的电脑</strong><p>请确保手机和电脑连接同一个 WiFi，并在 App 和百度网盘 AI 修图客户端登录同一个账号。</p></div>
-          {searchingComputers ? <div className="computer-searching" role="status"><i /><strong>正在搜索电脑…</strong></div> : <>
+          {searchingComputers ? <><div className="computer-searching" role="status"><i /><strong>正在搜索电脑…</strong></div><div className="ftp-search-scan-action"><button className="scan-entry" onClick={() => setScanning(true)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 8h3v3H8zM14 8h2v2h-2zM8 14h2v2H8zM13 13h3v3h-3z" /></svg><strong>扫码连接</strong></button></div></> : <>
             <div className="computer-list" role="radiogroup" aria-label="可连接的电脑">{DISCOVERED_COMPUTERS.map((computer) => <button key={computer.id} className={`computer-option ${selectedComputerId === computer.id ? 'selected' : ''}`} role="radio" aria-checked={selectedComputerId === computer.id} onClick={() => selectComputer(computer)}><span className="computer-device-icon"><ComputerIcon /></span><span className="computer-copy"><strong>{computer.name}</strong><small>{computer.address} · 端口 {computer.port}</small></span><i>{selectedComputerId === computer.id ? '✓' : ''}</i></button>)}</div>
             <p className="computer-count">已搜索到 {DISCOVERED_COMPUTERS.length} 台电脑</p>
             <div className="manual-server-fields"><label><span>服务器地址</span><input value={server} onChange={(e) => { setSelectedComputerId(null); setServer(e.target.value) }} placeholder="请输入服务器地址" /></label><label><span>端口</span><input value={port} onChange={(e) => { setSelectedComputerId(null); setPort(e.target.value.replace(/\D/g, '')) }} inputMode="numeric" placeholder="请输入端口" /></label></div>
@@ -501,6 +515,15 @@ export default function App() {
           </>}
         </>}
       </main>
+    </div>
+  )
+  const renderPresetPage = () => (
+    <div className="screen preset-page">
+      {topbar('预设', () => { setPresetDraft(project.preset); setScreen('project') }, <button className="preset-reset" onClick={() => setPresetDraft('无预设')}>重置</button>)}
+      <main className="content preset-page-content">
+        <div className="preset-panel"><div className="preset-sync-tip">{presetTab === 'recommended' ? '同步百度网盘AI修图客户端推荐预设' : '同步当前账号在百度网盘AI修图客户端的预设'}</div><div className="preset-tabs"><button className={presetTab === 'recommended' ? 'active' : ''} onClick={() => setPresetTab('recommended')}>推荐预设</button><button className={presetTab === 'mine' ? 'active' : ''} onClick={() => setPresetTab('mine')}>我的预设</button></div><div className="preset-name-list">{(presetTab === 'recommended' ? RECOMMENDED_PRESETS : MY_PRESETS).map((name) => <button className={presetDraft === name ? 'active' : ''} key={name} onClick={() => setPresetDraft(name)}><span>{name}</span>{presetDraft === name && <b>✓</b>}</button>)}</div></div>
+      </main>
+      <div className="preset-page-action"><button className="primary-button" onClick={applyPreset}>应用</button></div>
     </div>
   )
   const renderCameraPage = () => (
@@ -522,9 +545,8 @@ export default function App() {
   // __SHEETS__
   const renderSheet = () => {
     if (!sheet) return null
-    const tall = sheet === 'preset'
+    const tall = false
     return <div className="sheet-layer" onClick={() => setSheet(null)}><div className={`bottom-sheet ${tall ? 'tall-sheet' : ''} ${sheet === 'projectMenu' ? 'compact-menu-sheet' : ''}`} onClick={(e) => e.stopPropagation()}>
-      {sheet === 'preset' && <><div className="sheet-title"><button onClick={() => { setPresetDraft(project.preset); setSheet(null) }}>取消</button><strong>预设</strong><button className="preset-reset" onClick={() => setPresetDraft('无预设')}>重置</button></div><div className="preset-panel"><div className="preset-sync-tip">{presetTab === 'recommended' ? '同步百度网盘AI修图客户端推荐预设' : '同步当前账号在百度网盘AI修图客户端的预设'}</div><div className="preset-tabs"><button className={presetTab === 'recommended' ? 'active' : ''} onClick={() => setPresetTab('recommended')}>推荐预设</button><button className={presetTab === 'mine' ? 'active' : ''} onClick={() => setPresetTab('mine')}>我的预设</button></div><div className="preset-name-list">{(presetTab === 'recommended' ? RECOMMENDED_PRESETS : MY_PRESETS).map((name) => <button className={presetDraft === name ? 'active' : ''} key={name} onClick={() => setPresetDraft(name)}><span>{name}</span>{presetDraft === name && <b>✓</b>}</button>)}</div></div><button className="primary-button sheet-confirm" onClick={applyPreset}>应用</button></>}
       {sheet === 'projectMenu' && <><button className="sheet-option center" onClick={() => { const t = projects.find((p) => p.id === menuProjectId); setNameInput(t ? t.name : ''); setSheet('rename') }}>重命名项目</button><button className="sheet-option center danger" onClick={() => setSheet('deleteConfirm')}>删除项目</button></>}
       {sheet === 'rename' && <><div className="sheet-title"><button onClick={() => setSheet('projectMenu')}>‹ 返回</button><strong>重命名项目</strong><span /></div><div className="name-input-wrap sheet-input"><input className="text-field" value={nameInput} onChange={(e) => setNameInput(e.target.value)} maxLength={60} autoFocus /><span>{Array.from(nameInput).length}/60</span></div><button className="primary-button sheet-confirm" onClick={doRename}>保存</button></>}
       {sheet === 'deleteConfirm' && <div className="dialog-card delete-confirm-dialog" onClick={(e) => e.stopPropagation()}><h3>删除项目</h3><p>此项目仅在该列表删除，不会删除客户端的项目。</p><div className="dialog-actions"><button onClick={() => setSheet('projectMenu')}>取消</button><button className="danger" onClick={doDelete}>删除</button></div></div>}
@@ -559,6 +581,7 @@ export default function App() {
   else if (screen === 'create') content = renderCreate()
   else if (screen === 'project') content = renderProject()
   else if (screen === 'ftp') content = renderFtpPage()
+  else if (screen === 'preset') content = renderPresetPage()
   else if (screen === 'cameras') content = renderCameraPage()
   else if (screen === 'settings') content = renderSettings()
   else if (screen === 'me') content = renderMe()
