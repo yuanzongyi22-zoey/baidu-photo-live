@@ -83,6 +83,7 @@ export default function App() {
   const [ftpPass, setFtpPass] = useState('123456')
   const [scanning, setScanning] = useState(false)
   const [ftpEditing, setFtpEditing] = useState(false)
+  const [activeComputerId, setActiveComputerId] = useState<string | null>(null)
   const [selectedComputerId, setSelectedComputerId] = useState(DISCOVERED_COMPUTERS[0].id)
   const [searchingComputers, setSearchingComputers] = useState(false)
   const [presetDraft, setPresetDraft] = useState('无预设')
@@ -161,7 +162,7 @@ export default function App() {
       id,
       name,
       createdAt: nowStamp(),
-      ftpStatus: 'disconnected',
+      ftpStatus: activeComputerId ? 'connected' : 'disconnected',
       cameraStatus: 'failed',
       preset: '无预设',
       photos: [],
@@ -170,8 +171,8 @@ export default function App() {
     setActiveProjectId(id)
     setNameInput('')
     setScreen('project')
-    autoPresetRef.current = true
-    window.setTimeout(() => { startComputerSearch(); setSheet('ftp') }, 280)
+    autoPresetRef.current = !activeComputerId
+    if (!activeComputerId) window.setTimeout(() => { startComputerSearch(); setSheet('ftp') }, 280)
   }
 
   const connectFtp = (fail = false) => {
@@ -182,6 +183,7 @@ export default function App() {
     notify('正在连接 AI 修图客户端…')
     window.setTimeout(() => {
       if (fail) { patchProject(activeProjectId, { ftpStatus: 'failed' }); notify('连接失败，请检查服务器地址和端口后重试'); return }
+      setActiveComputerId(target.id)
       patchProject(activeProjectId, { ftpStatus: 'connected' })
       setFtpEditing(false)
       notify('FTP 已连接电脑')
