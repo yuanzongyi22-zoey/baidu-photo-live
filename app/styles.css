@@ -235,13 +235,17 @@ img { display: block; }
 .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
 .photo-tile { position: relative; padding: 0; aspect-ratio: 1; overflow: hidden; background: #ddd; }
 .photo-tile img { width: 100%; height: 100%; object-fit: cover; }
-.photo-tile.selected::after { content: ''; position: absolute; inset: 0; border: 3px solid var(--blue); background: rgb(36 104 242 / 10%); }
+.photo-tile.selected::after { content: ''; position: absolute; inset: 0; border: 3px solid var(--blue); background: rgb(36 104 242 / 10%); pointer-events: none; }
+.photo-open { width: 100%; height: 100%; display: block; padding: 0; background: transparent; touch-action: pan-y; user-select: none; -webkit-touch-callout: none; }
+.photo-tile.cleared { background: #fff; }
 .checkmark { position: absolute; z-index: 3; right: 6px; top: 6px; width: 20px; height: 20px; display: grid; place-items: center; border: 2px solid #fff; border-radius: 50%; color: #fff; background: rgb(0 0 0 / 22%); font-size: 12px; }
 .photo-tile.selected .checkmark { background: var(--blue); }
 .mark { position: absolute; left: 5px; top: 5px; padding: 2px 5px; border-radius: 3px; color: #fff; font-size: 9px; }
 .mark.keep { background: #1daa68; }.mark.reject { background: #ee5757; }
 .photo-status { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 5px; color: #fff; background: linear-gradient(transparent, rgb(0 0 0 / 65%)); text-align: left; font-size: 9px; }
-.photo-status.failed { color: #ffb1b1; }.photo-status.uploading { color: #a9ceff; }
+.photo-status.failed { color: #ff5c5c; }.photo-status.uploading { color: #4d91ff; }
+.photo-status.cleared { color: #17191e; background: transparent; }
+.photo-status { pointer-events: none; }
 .photo-status i { width: 7px; height: 7px; display: inline-block; margin-right: 4px; border: 1px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
 .upload-one { position: absolute; right: 5px; bottom: 4px; padding: 2px 5px; border-radius: 4px; color: #fff; background: rgb(36 104 242 / 92%); font-size: 9px; }
 .empty-gallery { padding: 58px 20px; text-align: center; color: #9ba0a9; }
@@ -249,6 +253,13 @@ img { display: block; }
 .floating-upload { position: fixed; z-index: 20; left: 50%; bottom: 22px; min-width: 142px; height: 44px; transform: translateX(-50%); border-radius: 23px; color: #fff; background: var(--blue); box-shadow: 0 8px 24px rgb(36 104 242 / 35%); font-weight: 700; }
 .selection-bar { position: fixed; z-index: 25; left: 50%; bottom: 0; width: min(393px, 100%); height: calc(66px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 10px; padding: 10px 16px env(safe-area-inset-bottom); transform: translateX(-50%); background: #fff; box-shadow: 0 -8px 20px rgb(0 0 0 / 8%); }
 .selection-bar span { margin-right: auto; font-size: 13px; }.selection-bar button { padding: 8px 17px; border-radius: 17px; color: #fff; background: var(--blue); font-size: 12px; }.selection-bar button:last-child { background: #ee6262; }
+.project-content.selecting-photos { padding-bottom: 104px; }
+.batch-photo-bar { position: absolute; left: 0; right: 0; bottom: 34px; z-index: 25; min-height: 66px; display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--line); background: #fff; }
+.batch-photo-bar span { flex: 1; color: #737985; font-size: 12px; }
+.batch-photo-bar button { min-width: 58px; height: 38px; padding: 0 12px; border-radius: 19px; color: #fff; background: var(--blue); font-size: 12px; }
+.batch-photo-bar .batch-cancel { min-width: auto; padding: 0; color: #545a64; background: transparent; }
+.batch-photo-bar button.danger { background: #ed5757; }
+.batch-photo-bar button:disabled { opacity: .4; }
 
 .connection-page, .preset-page, .settings-page { padding-top: 18px; }
 .connection-state { padding: 27px 20px 23px; text-align: center; border-radius: 17px; background: #fff; }
@@ -482,6 +493,7 @@ img { display: block; }
 .camera-status-card .status-dot.fail { background: #e34d4d; }
 .empty-gallery.tall { padding: 90px 20px; }
 .retry-badge { position: absolute; right: 5px; bottom: 4px; padding: 3px 7px; border-radius: 4px; color: #fff; background: #ee5757; font-size: 10px; }
+.delete-badge { position: absolute; right: 5px; bottom: 4px; padding: 3px 7px; border-radius: 4px; color: #fff; background: #555b65; font-size: 10px; }
 .me-profile { display: flex; align-items: center; gap: 13px; padding: 10px 2px 20px; }
 .me-profile .avatar { width: 56px; height: 56px; border-radius: 18px; }
 .me-profile h2 { margin: 0; font-size: 18px; }

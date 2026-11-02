@@ -8,7 +8,7 @@ type PhotoFilter = 'all' | 'success' | 'failed'
 type PhotoSort = 'newest' | 'oldest'
 type FtpStatus = 'disconnected' | 'connecting' | 'connected' | 'failed'
 type CameraStatus = 'connected' | 'failed'
-type PhotoStatus = 'uploading' | 'success' | 'failed'
+type PhotoStatus = 'uploading' | 'success' | 'failed' | 'cleared'
 type UploadFormat = 'JPG' | 'RAW' | 'JPG+RAW'
 type ConnectedCamera = { id: string; name: string; model: string; hasSdCard: boolean; format: UploadFormat }
 
@@ -42,11 +42,11 @@ const DEFAULT_PROJECT: Project = {
   photos: DEMO_IMAGES.slice(0, 6).map((url, index) => ({
     id: index + 1,
     url,
-    status: index === 2 ? 'failed' : 'success',
+    status: index === 2 ? 'failed' : index === 3 ? 'cleared' : 'success',
   })),
 }
 
-const STATUS_LABEL: Record<PhotoStatus, string> = { uploading: '上传中', success: '已上传', failed: '上传失败' }
+const STATUS_LABEL: Record<PhotoStatus, string> = { uploading: '上传中', success: '已上传', failed: '上传失败', cleared: '被清除' }
 const HELP_CENTER_URL = 'https://pan.baidu.com/aiphoto/doc/helpcenter'
 const RECOMMENDED_PRESETS = [
   '无预设', '儿童', '儿童-亮调纯净', '儿童-暗调儿童', '全家福', '全家福-自然',
@@ -98,6 +98,8 @@ export default function App() {
   const [aiSelect, setAiSelect] = useState(true)
   const [aiBeauty, setAiBeauty] = useState(true)
   const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null)
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState<number[]>([])
+  const [selectingPhotos, setSelectingPhotos] = useState(false)
   const [photoFilter, setPhotoFilter] = useState<PhotoFilter>('all')
   const [photoSort, setPhotoSort] = useState<PhotoSort>('newest')
   const [phone, setPhone] = useState('')
@@ -109,6 +111,8 @@ export default function App() {
   const photoTouchStartX = useRef<number | null>(null)
   const toastTimer = useRef<number | null>(null)
   const computerSearchTimer = useRef<number | null>(null)
+  const photoPressRef = useRef<{ timer: number; x: number; y: number } | null>(null)
+  const suppressPhotoClick = useRef(false)
 
   const project = projects.find((p) => p.id === activeProjectId) ?? projects[0]
   const uploaded = project ? project.photos.filter((p) => p.status === 'success').length : 0
@@ -116,7 +120,15 @@ export default function App() {
   useEffect(() => () => {
     if (toastTimer.current) window.clearTimeout(toastTimer.current)
     if (computerSearchTimer.current) window.clearTimeout(computerSearchTimer.current)
+    if (photoPressRef.current) window.clearTimeout(photoPressRef.current.timer)
   }, [])
+
+  useEffect(() => {
+    setSelectingPhotos(false)
+    setSelectedPhotoIds([])
+    if (photoPressRef.current) window.clearTimeout(photoPressRef.current.timer)
+    photoPressRef.current = null
+  }, [screen, activeProjectId, photoFilter])
 
   useEffect(() => {
     if (screen !== 'create') return
@@ -261,13 +273,34 @@ export default function App() {
     setScreen('preset')
   }
 
-  const retryPhoto = (photoId: number) => {
-    patchProject(activeProjectId, { photos: project.photos.map((p) => (p.id === photoId ? { ...p, status: 'uploading' } : p)) })
+  const retryPhotos = (photoIds: number[]) => {
+    const projectId = activeProjectId
+    const failedIds = new Set(project.photos.filter((photo) => photoIds.includes(photo.id) && photo.status === 'failed').map((photo) => photo.id))
+    if (!failedIds.size) return
+    setProjects((items) => items.map((item) => item.id === projectId ? { ...item, photos: item.photos.map((photo) => failedIds.has(photo.id) ? { ...photo, status: 'uploading' } : photo) } : item))
+    setSelectingPhotos(false)
+    setSelectedPhotoIds([])
     window.setTimeout(() => {
-      setProjects((items) => items.map((it) => (it.id === activeProjectId ? { ...it, photos: it.photos.map((p) => (p.id === photoId ? { ...p, status: 'success' } : p)) } : it)))
-      notify('照片已重新上传')
+      setProjects((items) => items.map((item) => item.id === projectId ? { ...item, photos: item.photos.map((photo) => failedIds.has(photo.id) ? { ...photo, status: 'success' } : photo) } : item))
+      notify(`${failedIds.size} 张照片已重新上传`)
     }, 800)
   }
+
+  const deletePhotos = (photoIds: number[]) => {
+    const deletedIds = new Set(photoIds)
+    patchProject(activeProjectId, { photos: project.photos.filter((photo) => !deletedIds.has(photo.id)) })
+    setSelectingPhotos(false)
+    setSelectedPhotoIds([])
+    notify(`${deletedIds.size} 张照片已删除`)
+  }
+
+  const cancelPhotoPress = () => {
+    if (photoPressRef.current) window.clearTimeout(photoPressRef.current.timer)
+    photoPressRef.current = null
+  }
+
+  const togglePhotoSelection = (photoId: number) =>
+    setSelectedPhotoIds((ids) => ids.includes(photoId) ? ids.filter((id) => id !== photoId) : [...ids, photoId])
 
   const switchPreviewPhoto = (direction: -1 | 1) => {
     if (!previewPhoto || !project) return
@@ -412,7 +445,7 @@ export default function App() {
     return (
     <div className="screen project-screen">
       {topbar(project.name, () => setScreen('home'), <button className="text-action" onClick={() => { setNameInput(project.name); setScreen('settings') }}>设置</button>)}
-      <main className="content project-content">
+      <main className={`content project-content ${selectingPhotos ? 'selecting-photos' : ''}`}>
         <div className="project-top-actions">
           <button className={`ftp-top ${project.ftpStatus === 'connected' ? 'connected' : 'disconnected'}`} onClick={openFtpManually}><span className="flat-icon"><ComputerIcon /></span><strong>{project.ftpStatus === 'connected' ? 'FTP已连接' : 'FTP未连接'}</strong><em className={project.ftpStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} /></button>
           <button className={`camera-status-card ${project.cameraStatus === 'connected' ? 'on' : 'off'}`} onClick={cameraTap}>
@@ -434,19 +467,35 @@ export default function App() {
               <button className="sort-toggle" onClick={() => setSheet('filter')}>筛选</button>
             </div>
             {visiblePhotos.length ? (
-              <div className="photo-grid">{visiblePhotos.map((photo) => (
-                <button className="photo-tile" key={photo.id} onClick={() => setPreviewPhoto(photo)}>
-                  <img src={photo.url} alt="活动照片" />
+              <div className="photo-grid">{visiblePhotos.map((photo) => {
+                const selectable = photo.status === 'failed' || photo.status === 'cleared'
+                const selected = selectedPhotoIds.includes(photo.id)
+                return <div className={`photo-tile ${photo.status === 'cleared' ? 'cleared' : ''} ${selected ? 'selected' : ''}`} key={photo.id}>
+                  <button className="photo-open" aria-label={selectingPhotos && selectable ? `选择照片 ${photo.id}` : `查看照片 ${photo.id}`} aria-pressed={selectingPhotos && selectable ? selected : undefined}
+                    onPointerDown={(e) => {
+                      cancelPhotoPress(); suppressPhotoClick.current = false
+                      if (!e.isPrimary || e.button !== 0 || !selectable || selectingPhotos) return
+                      photoPressRef.current = { x: e.clientX, y: e.clientY, timer: window.setTimeout(() => { suppressPhotoClick.current = true; setSelectingPhotos(true); setSelectedPhotoIds([photo.id]); photoPressRef.current = null }, 500) }
+                    }}
+                    onPointerMove={(e) => { const press = photoPressRef.current; if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 10) cancelPhotoPress() }}
+                    onPointerUp={cancelPhotoPress} onPointerCancel={cancelPhotoPress} onPointerLeave={cancelPhotoPress}
+                    onContextMenu={(e) => { e.preventDefault(); cancelPhotoPress(); if (selectable) { suppressPhotoClick.current = true; setSelectingPhotos(true); setSelectedPhotoIds((ids) => ids.includes(photo.id) ? ids : [...ids, photo.id]) } }}
+                    onClick={() => { if (suppressPhotoClick.current) { suppressPhotoClick.current = false; return }; if (selectingPhotos) { if (selectable) togglePhotoSelection(photo.id); return }; if (photo.status !== 'cleared') setPreviewPhoto(photo) }}>
+                    {photo.status !== 'cleared' && <img src={photo.url} alt="活动照片" draggable={false} />}
+                    {selectingPhotos && selectable && <span className="checkmark">{selected ? '✓' : ''}</span>}
+                  </button>
                   <span className={`photo-status ${photo.status}`}>{photo.status === 'uploading' && <i />}{STATUS_LABEL[photo.status]}</span>
-                  {photo.status === 'failed' && <span className="retry-badge" onClick={(e) => { e.stopPropagation(); retryPhoto(photo.id) }}>重试</span>}
-                </button>
-              ))}</div>
+                  {photo.status === 'failed' && !selectingPhotos && <button className="retry-badge" onClick={() => retryPhotos([photo.id])}>重试</button>}
+                  {photo.status === 'cleared' && !selectingPhotos && <button className="delete-badge" onClick={() => deletePhotos([photo.id])}>删除</button>}
+                </div>
+              })}</div>
             ) : (
               <div className="empty-gallery tall"><span>▧</span><strong>没有符合筛选的照片</strong><p>{activeFilter ? '可点击上方标签切换筛选条件' : '拍摄后照片将显示在这里'}</p></div>
             )}
           </>
         )}
       </main>
+      {selectingPhotos && <div className="batch-photo-bar"><button className="batch-cancel" onClick={() => { setSelectingPhotos(false); setSelectedPhotoIds([]) }}>取消</button><span>已选 {selectedPhotoIds.length} 张</span><button disabled={!selectedPhotoIds.some((id) => project.photos.some((photo) => photo.id === id && photo.status === 'failed'))} onClick={() => retryPhotos(selectedPhotoIds)}>重试</button><button className="danger" disabled={!selectedPhotoIds.length} onClick={() => deletePhotos(selectedPhotoIds)}>删除</button></div>}
     </div>
     )
   }
