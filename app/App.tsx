@@ -488,8 +488,10 @@ export default function App() {
             <div className="computer-list" role="radiogroup" aria-label="可连接的电脑">{DISCOVERED_COMPUTERS.map((computer) => <button key={computer.id} className={`computer-option ${selectedComputerId === computer.id ? 'selected' : ''}`} role="radio" aria-checked={selectedComputerId === computer.id} onClick={() => selectComputer(computer)}><span className="computer-device-icon"><ComputerIcon /></span><span className="computer-copy"><strong>{computer.name}</strong><small>{computer.address} · 端口 {computer.port}</small></span><i>{selectedComputerId === computer.id ? '✓' : ''}</i></button>)}</div>
             <p className="computer-count">已搜索到 {DISCOVERED_COMPUTERS.length} 台电脑</p>
             <div className="manual-server-fields"><label><span>服务器地址</span><input value={server} onChange={(e) => { setSelectedComputerId(null); setServer(e.target.value) }} placeholder="请输入服务器地址" /></label><label><span>端口</span><input value={port} onChange={(e) => { setSelectedComputerId(null); setPort(e.target.value.replace(/\D/g, '')) }} inputMode="numeric" placeholder="请输入端口" /></label></div>
-            <button className="scan-entry" onClick={() => setScanning(true)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 8h3v3H8zM14 8h2v2h-2zM8 14h2v2H8zM13 13h3v3h-3z" /></svg><span><strong>扫码连接</strong><small>扫描电脑端二维码自动填写</small></span><b>›</b></button>
-            <button className="primary-button ftp-connect-computer" disabled={!server.trim() || !port.trim() || project.ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{project.ftpStatus === 'connecting' ? '连接中…' : '连接'}</button>
+            <div className="ftp-bottom-actions">
+              <button className="scan-entry" onClick={() => setScanning(true)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 8h3v3H8zM14 8h2v2h-2zM8 14h2v2H8zM13 13h3v3h-3z" /></svg><strong>扫码连接</strong></button>
+              <button className="primary-button ftp-connect-computer" disabled={!server.trim() || !port.trim() || project.ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{project.ftpStatus === 'connecting' ? '连接中…' : '连接'}</button>
+            </div>
           </>}
         </>}
       </main>
