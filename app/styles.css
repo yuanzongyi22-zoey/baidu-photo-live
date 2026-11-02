@@ -360,16 +360,16 @@ img { display: block; }
 .computer-searching strong { font-size: 13px; font-weight: 500; }
 .ftp-page { display: flex; flex-direction: column; background: var(--page); }
 .ftp-page > .topbar { flex: 0 0 62px; }
-.ftp-page-content { min-height: 0; flex: 1; padding-top: 12px; padding-bottom: 112px; overflow-y: auto; }
+.ftp-page-content { min-height: 0; flex: 1; padding-top: 12px; padding-bottom: 190px; overflow-y: auto; }
 .ftp-page .ftp-success-card { margin-top: 8px; background: #fff; }
-.ftp-success-action, .ftp-search-scan-action, .preset-page-action { position: absolute; left: 16px; right: 16px; bottom: 38px; z-index: 10; padding-top: 10px; background: var(--page); }
+.ftp-success-action, .preset-page-action { position: absolute; left: 16px; right: 16px; bottom: 38px; z-index: 10; padding-top: 10px; background: var(--page); }
 .ftp-success-action .ftp-next { height: 50px; margin: 0; }
-.ftp-search-scan-action .scan-entry { background: #fff; }
-.manual-server-fields { display: grid; grid-template-columns: 1.55fr .75fr; gap: 10px; margin: 14px 0 12px; }
+.ftp-manual-section { position: absolute; left: 16px; right: 16px; bottom: 38px; z-index: 10; padding-top: 12px; border-top: 1px solid #e2e5ea; background: var(--page); }
+.manual-server-fields { display: grid; grid-template-columns: 1.55fr .75fr; gap: 10px; margin: 0 0 12px; }
 .manual-server-fields label > span { display: block; margin: 0 2px 7px; color: #444a55; font-size: 12px; }
 .manual-server-fields input { width: 100%; height: 46px; padding: 0 12px; outline: 0; border: 1px solid #dfe3e9; border-radius: 9px; background: #fff; font-size: 13px; }
 .manual-server-fields input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgb(36 104 242 / 8%); }
-.ftp-bottom-actions { position: absolute; left: 16px; right: 16px; bottom: 38px; z-index: 10; display: grid; grid-template-columns: 1fr 1.25fr; gap: 10px; padding-top: 10px; background: var(--page); }
+.ftp-bottom-actions { display: grid; grid-template-columns: 1fr 1.25fr; gap: 10px; }
 .scan-entry { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 0 12px; border: 1px solid #dfe3e9; border-radius: 12px; background: #fff; color: #4d535e; }
 .scan-entry svg { width: 26px; height: 26px; flex: 0 0 26px; fill: none; stroke: var(--blue); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .scan-entry strong { font-size: 14px; }
