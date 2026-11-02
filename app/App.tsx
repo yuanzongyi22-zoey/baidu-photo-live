@@ -513,7 +513,7 @@ export default function App() {
           return <section className={`camera-device-card ${active ? 'active' : ''}`} key={camera.id}>
             <div className="camera-device-head"><span className="camera-device-symbol"><CameraIcon /></span><div><strong>{camera.name}</strong><small>{camera.model} · 有线连接</small></div><button className={`camera-switch ${active ? 'on' : ''}`} role="switch" aria-checked={active} aria-label={`${camera.name}照片传入手机`} onClick={() => setActiveCameraId(camera.id)}><i /></button></div>
             <div className="camera-format-row"><span>上传图片类型</span><div>{(['JPG', 'RAW', 'JPG+RAW'] as UploadFormat[]).map((format) => <button key={format} className={camera.format === format ? 'selected' : ''} onClick={() => setConnectedCameras((items) => items.map((item) => item.id === camera.id ? { ...item, format } : item))}>{format}</button>)}</div></div>
-            {!camera.hasSdCard && <p className="camera-sd-warning">未检测到sd卡，图片直接传入手机，上传成功后手机内图片将被删除</p>}
+            {!camera.hasSdCard && <p className="camera-sd-warning">该相机无sd卡，图片直接传入手机，上传成功后手机图片将被删除。</p>}
           </section>
         })}</div>
       </main>
