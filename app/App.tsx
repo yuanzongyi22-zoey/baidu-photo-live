@@ -507,7 +507,7 @@ export default function App() {
     <div className="screen camera-page">
       {topbar('相机选择', () => setScreen('project'))}
       <main className="content camera-page-content">
-        <p className="camera-page-tip">选择一台相机接收照片。开启其他相机时，当前相机会自动关闭。</p>
+        <p className="camera-page-tip">选择一台相机联机拍摄照片。</p>
         <div className="camera-device-list">{connectedCameras.map((camera) => {
           const active = activeCameraId === camera.id
           return <section className={`camera-device-card ${active ? 'active' : ''}`} key={camera.id}>
