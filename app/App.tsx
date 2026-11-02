@@ -84,6 +84,7 @@ export default function App() {
   const [scanning, setScanning] = useState(false)
   const [ftpEditing, setFtpEditing] = useState(false)
   const [selectedComputerId, setSelectedComputerId] = useState(DISCOVERED_COMPUTERS[0].id)
+  const [searchingComputers, setSearchingComputers] = useState(false)
   const [presetDraft, setPresetDraft] = useState('无预设')
   const [presetTab, setPresetTab] = useState<'recommended' | 'mine'>('recommended')
   const [aiSelect, setAiSelect] = useState(true)
@@ -99,11 +100,15 @@ export default function App() {
   const projectNameRef = useRef<HTMLInputElement>(null)
   const photoTouchStartX = useRef<number | null>(null)
   const toastTimer = useRef<number | null>(null)
+  const computerSearchTimer = useRef<number | null>(null)
 
   const project = projects.find((p) => p.id === activeProjectId) ?? projects[0]
   const uploaded = project ? project.photos.filter((p) => p.status === 'success').length : 0
 
-  useEffect(() => () => { if (toastTimer.current) window.clearTimeout(toastTimer.current) }, [])
+  useEffect(() => () => {
+    if (toastTimer.current) window.clearTimeout(toastTimer.current)
+    if (computerSearchTimer.current) window.clearTimeout(computerSearchTimer.current)
+  }, [])
 
   useEffect(() => {
     if (screen !== 'create') return
@@ -118,6 +123,16 @@ export default function App() {
     setToast(msg)
     if (toastTimer.current) window.clearTimeout(toastTimer.current)
     toastTimer.current = window.setTimeout(() => setToast(''), 2600)
+  }
+
+  const startComputerSearch = () => {
+    if (computerSearchTimer.current) window.clearTimeout(computerSearchTimer.current)
+    setSelectedComputerId(DISCOVERED_COMPUTERS[0].id)
+    setSearchingComputers(true)
+    computerSearchTimer.current = window.setTimeout(() => {
+      setSearchingComputers(false)
+      computerSearchTimer.current = null
+    }, 3000)
   }
 
   const patchProject = (id: number, patch: Partial<Project>) =>
@@ -156,7 +171,7 @@ export default function App() {
     setNameInput('')
     setScreen('project')
     autoPresetRef.current = true
-    window.setTimeout(() => setSheet('ftp'), 280)
+    window.setTimeout(() => { startComputerSearch(); setSheet('ftp') }, 280)
   }
 
   const connectFtp = (fail = false) => {
@@ -177,6 +192,7 @@ export default function App() {
     autoPresetRef.current = false
     setFtpEditing(false)
     setScanning(false)
+    if (project.ftpStatus !== 'connected') startComputerSearch()
     setSheet('ftp')
   }
   // __BODY2__
@@ -450,7 +466,7 @@ export default function App() {
           </div>
         ) : project.ftpStatus === 'connected' && !ftpEditing ? (
           <div className="ftp-success-card">
-            <div className="ftp-success-head"><span className="ok-icon">✓</span><strong>FTP连接成功</strong><button className="change-link" onClick={() => setFtpEditing(true)}>更换连接</button></div>
+            <div className="ftp-success-head"><span className="ok-icon">✓</span><strong>FTP连接成功</strong><button className="change-link" onClick={() => { setFtpEditing(true); startComputerSearch() }}>更换连接</button></div>
             <div className="ftp-info-rows">
               <div><span>服务器地址</span><b>{server}</b></div>
               <div><span>端口</span><b>{port}</b></div>
@@ -459,15 +475,17 @@ export default function App() {
         ) : (
           <>
             <div className="ftp-discovery-tip"><strong>搜索附近的电脑</strong><p>请确保手机和电脑连接同一个 WiFi，并在 App 和百度网盘 AI 修图客户端登录同一个账号。</p></div>
-            <div className="computer-list" role="radiogroup" aria-label="可连接的电脑">
-              {DISCOVERED_COMPUTERS.map((computer) => <button key={computer.id} className={`computer-option ${selectedComputerId === computer.id ? 'selected' : ''}`} role="radio" aria-checked={selectedComputerId === computer.id} onClick={() => setSelectedComputerId(computer.id)}>
-                <span className="computer-device-icon"><ComputerIcon /></span>
-                <span className="computer-copy"><strong>{computer.name}</strong><small>{computer.address} · 端口 {computer.port}</small></span>
-                <i>{selectedComputerId === computer.id ? '✓' : ''}</i>
-              </button>)}
-            </div>
-            <p className="computer-count">已搜索到 {DISCOVERED_COMPUTERS.length} 台电脑，默认选择第一台</p>
-            <button className="primary-button ftp-connect-computer" disabled={project.ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{project.ftpStatus === 'connecting' ? '连接中…' : '连接'}</button>
+            {searchingComputers ? <div className="computer-searching" role="status"><i /><strong>正在搜索电脑…</strong></div> : <>
+              <div className="computer-list" role="radiogroup" aria-label="可连接的电脑">
+                {DISCOVERED_COMPUTERS.map((computer) => <button key={computer.id} className={`computer-option ${selectedComputerId === computer.id ? 'selected' : ''}`} role="radio" aria-checked={selectedComputerId === computer.id} onClick={() => setSelectedComputerId(computer.id)}>
+                  <span className="computer-device-icon"><ComputerIcon /></span>
+                  <span className="computer-copy"><strong>{computer.name}</strong><small>{computer.address} · 端口 {computer.port}</small></span>
+                  <i>{selectedComputerId === computer.id ? '✓' : ''}</i>
+                </button>)}
+              </div>
+              <p className="computer-count">已搜索到 {DISCOVERED_COMPUTERS.length} 台电脑</p>
+              <button className="primary-button ftp-connect-computer" disabled={project.ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{project.ftpStatus === 'connecting' ? '连接中…' : '连接'}</button>
+            </>}
           </>
         )}
         {project.ftpStatus === 'connected' && !ftpEditing && !scanning && <button className="primary-button ftp-next" onClick={() => { if (autoPresetRef.current) { autoPresetRef.current = false; openPreset() } else setSheet(null) }}>{autoPresetRef.current ? '下一步' : '我知道了'}</button>}
