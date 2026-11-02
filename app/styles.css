@@ -380,11 +380,13 @@ img { display: block; }
 .scan-back { height: 44px; }
 .preset-page { display: flex; flex-direction: column; background: var(--page); }
 .preset-page > .topbar { flex: 0 0 62px; }
+.preset-page > .topbar { grid-template-columns: 72px 1fr 72px; padding-left: 20px; padding-right: 20px; }
+.preset-page > .topbar > div:first-child { margin-left: -12px; }
 .preset-page-content { min-height: 0; flex: 1; padding-top: 12px; padding-bottom: 108px; overflow: hidden; }
 .preset-page .preset-panel { height: 100%; display: flex; flex-direction: column; padding: 8px 2px 4px; border-radius: 0; background: transparent; }
 .preset-page .preset-name-list { min-height: 0; max-height: none; flex: 1; overflow-y: auto; }
 .preset-page-action .primary-button { width: 100%; height: 50px; }
-.topbar-action .preset-reset { padding: 8px 0; background: transparent; }
+.topbar-action .preset-reset { min-width: 44px; padding: 8px 0; background: transparent; text-align: right !important; }
 .camera-page { display: flex; flex-direction: column; background: var(--page); }
 .camera-page > .topbar { flex: 0 0 62px; }
 .camera-page-content { min-height: 0; flex: 1; padding-top: 14px; padding-bottom: 38px; overflow-y: auto; }
