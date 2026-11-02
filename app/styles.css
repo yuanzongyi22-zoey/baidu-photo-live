@@ -339,6 +339,22 @@ img { display: block; }
 .tutorial-pill svg { width: 12px; height: 12px; fill: none; stroke: var(--blue); stroke-width: 1.8; stroke-linejoin: round; }
 .ftp-field { margin-top: 14px; }
 .ftp-connect-tip { margin: 5px 2px -4px; color: #8f95a0; font-size: 11px; line-height: 17px; }
+.ftp-discovery-tip { margin: 8px 0 16px; padding: 14px; border-radius: 10px; background: #f3f6fb; }
+.ftp-discovery-tip strong { display: block; margin-bottom: 5px; font-size: 14px; }
+.ftp-discovery-tip p { margin: 0; color: #727985; font-size: 12px; line-height: 18px; }
+.computer-list { display: grid; gap: 10px; }
+.computer-option { width: 100%; min-height: 68px; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #e2e5ea; border-radius: 11px; text-align: left; background: #fff; }
+.computer-option.selected { border-color: var(--blue); background: #f3f7ff; box-shadow: 0 0 0 2px rgb(36 104 242 / 8%); }
+.computer-device-icon { width: 38px; height: 38px; display: grid; place-items: center; flex: 0 0 38px; border-radius: 10px; color: var(--blue); background: #e8f0ff; }
+.computer-device-icon svg { width: 21px; height: 21px; fill: currentColor; }
+.computer-copy { min-width: 0; flex: 1; }
+.computer-copy strong, .computer-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.computer-copy strong { margin-bottom: 4px; font-size: 14px; }
+.computer-copy small { color: #8b9099; font-size: 11px; }
+.computer-option > i { width: 20px; height: 20px; display: grid; place-items: center; flex: 0 0 20px; border: 1px solid #cfd4dd; border-radius: 50%; color: #fff; font-size: 11px; font-style: normal; }
+.computer-option.selected > i { border-color: var(--blue); background: var(--blue); }
+.computer-count { margin: 10px 2px 16px; color: #9298a2; font-size: 11px; }
+.ftp-connect-computer { width: 100%; }
 .ftp-field label { display: block; padding-left: 2px; color: #333; font-size: 12px; }
 .ftp-field label i { margin-right: 3px; color: #e34d4d; font-style: normal; }
 .ftp-field input { width: 100%; height: 44px; margin-top: 7px; padding: 0 12px; outline: 0; border: 1px solid #e2e5ea; border-radius: 7px; background: #fafbfc; font-size: 13px; }

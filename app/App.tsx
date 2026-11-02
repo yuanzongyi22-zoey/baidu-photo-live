@@ -56,6 +56,10 @@ const RECOMMENDED_PRESETS = [
   '胶片人像-富士NN', '胶片人像-理光正片', '胶片人像-理光负片', '证件照', '质感肌',
 ]
 const MY_PRESETS = ['百度网盘AI修图-人像通透', '百度网盘AI修图-室内暖光', '百度网盘AI修图-活动纪实']
+const DISCOVERED_COMPUTERS = [
+  { id: 'studio', name: '摄影工作室的 MacBook Pro', address: '192.168.43.18', port: '2121' },
+  { id: 'retouch', name: 'AI修图工作站', address: '192.168.43.26', port: '2121' },
+]
 const ComputerIcon = () => <svg className="flat-icon-svg" viewBox="0 0 1024 1024" aria-hidden="true"><path d="M881.92 812.8H138.24C66.56 812.8 8.96 755.2 8.96 683.52v-512C8.96 99.84 66.56 42.24 138.24 42.24h743.68C953.6 42.24 1011.2 101.12 1011.2 171.52v510.72c0 71.68-57.6 130.56-129.28 130.56zM138.24 107.52c-35.84 0-65.28 29.44-65.28 65.28v510.72c0 35.84 29.44 65.28 65.28 65.28h743.68c35.84 0 65.28-29.44 65.28-65.28v-512c0-35.84-29.44-65.28-65.28-65.28H138.24zM847.36 999.68H179.2c-28.16 0-44.8-29.44-32-53.76L179.2 883.2c6.4-11.52 19.2-19.2 32-19.2h602.88c14.08 0 25.6 7.68 32 19.2l33.28 62.72c12.8 24.32-5.12 53.76-32 53.76z" /><path d="M409.6 785.92h200.96v154.88H409.6z" /></svg>
 const CameraIcon = () => <svg className="flat-icon-svg" viewBox="0 0 1024 1024" aria-hidden="true"><path d="M269.44 256l23.296-75.381A74.667 74.667 0 0 1 364.075 128h295.85a74.667 74.667 0 0 1 71.339 52.619L754.56 256h66.773c64.8 0 117.334 52.533 117.334 117.333V800c0 64.8-52.534 117.333-117.334 117.333H202.667C137.867 917.333 85.333 864.8 85.333 800V373.333C85.333 308.533 137.867 256 202.667 256h66.773zm23.605 64h-90.378a53.333 53.333 0 0 0-53.334 53.333V800a53.333 53.333 0 0 0 53.334 53.333h618.666A53.333 53.333 0 0 0 874.667 800V373.333A53.333 53.333 0 0 0 821.333 320h-90.378a32 32 0 0 1-30.571-22.549l-30.272-97.93A10.667 10.667 0 0 0 659.925 192h-295.85a10.667 10.667 0 0 0-10.187 7.52l-30.272 97.92A32 32 0 0 1 293.045 320zM512 725.333c-88.363 0-160-71.637-160-160s71.637-160 160-160 160 71.637 160 160-71.637 160-160 160zm0-64a96 96 0 1 0 0-192 96 96 0 0 0 0 192z" /></svg>
 const PresetIcon = () => <svg className="flat-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3.2" /><circle cx="6" cy="15" r="3.2" /><circle cx="18" cy="15" r="3.2" /><path d="M9.3 6.8 7.6 12M14.7 6.8l1.7 5.2M9.2 15h5.6" /></svg>
@@ -79,6 +83,7 @@ export default function App() {
   const [ftpPass, setFtpPass] = useState('123456')
   const [scanning, setScanning] = useState(false)
   const [ftpEditing, setFtpEditing] = useState(false)
+  const [selectedComputerId, setSelectedComputerId] = useState(DISCOVERED_COMPUTERS[0].id)
   const [presetDraft, setPresetDraft] = useState('无预设')
   const [presetTab, setPresetTab] = useState<'recommended' | 'mine'>('recommended')
   const [aiSelect, setAiSelect] = useState(true)
@@ -155,6 +160,9 @@ export default function App() {
   }
 
   const connectFtp = (fail = false) => {
+    const target = DISCOVERED_COMPUTERS.find((computer) => computer.id === selectedComputerId) ?? DISCOVERED_COMPUTERS[0]
+    setServer(target.address)
+    setPort(target.port)
     patchProject(activeProjectId, { ftpStatus: 'connecting' })
     notify('正在连接 AI 修图客户端…')
     window.setTimeout(() => {
@@ -446,26 +454,20 @@ export default function App() {
             <div className="ftp-info-rows">
               <div><span>服务器地址</span><b>{server}</b></div>
               <div><span>端口</span><b>{port}</b></div>
-              <div><span>用户名</span><b>{ftpUser}</b></div>
-              <div><span>密码</span><b>{ftpPass}</b></div>
             </div>
           </div>
         ) : (
           <>
-            <p className="ftp-connect-tip">请确保手机与电脑登录同一个账号、连接同一个 WiFi。</p>
-            <div className="ftp-field"><label>手机网络地址</label><div className="ftp-phone-ip">172.22.159.92</div></div>
-            <div className="ftp-field-grid">
-              <div className="ftp-field"><label><i>*</i>服务器地址</label><input value={server} onChange={(e) => setServer(e.target.value)} placeholder="请输入服务器地址" /></div>
-              <div className="ftp-field"><label><i>*</i>端口</label><input value={port} onChange={(e) => setPort(e.target.value)} inputMode="numeric" placeholder="请输入端口" /></div>
+            <div className="ftp-discovery-tip"><strong>搜索附近的电脑</strong><p>请确保手机和电脑连接同一个 WiFi，并在 App 和百度网盘 AI 修图客户端登录同一个账号。</p></div>
+            <div className="computer-list" role="radiogroup" aria-label="可连接的电脑">
+              {DISCOVERED_COMPUTERS.map((computer) => <button key={computer.id} className={`computer-option ${selectedComputerId === computer.id ? 'selected' : ''}`} role="radio" aria-checked={selectedComputerId === computer.id} onClick={() => setSelectedComputerId(computer.id)}>
+                <span className="computer-device-icon"><ComputerIcon /></span>
+                <span className="computer-copy"><strong>{computer.name}</strong><small>{computer.address} · 端口 {computer.port}</small></span>
+                <i>{selectedComputerId === computer.id ? '✓' : ''}</i>
+              </button>)}
             </div>
-            <div className="ftp-field-grid">
-              <div className="ftp-field"><label><i>*</i>用户名</label><input value={ftpUser} onChange={(e) => setFtpUser(e.target.value)} placeholder="请输入用户名" /></div>
-              <div className="ftp-field"><label><i>*</i>密码</label><input value={ftpPass} onChange={(e) => setFtpPass(e.target.value)} placeholder="请输入密码" /></div>
-            </div>
-            <div className="sheet-button-row ftp-actions">
-              <button className="ghost-button" onClick={() => setScanning(true)}>扫码录入</button>
-              <button className="primary-button" disabled={!server.trim() || !port.trim() || !ftpUser.trim() || !ftpPass.trim() || project.ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{project.ftpStatus === 'connecting' ? '连接中…' : project.ftpStatus === 'connected' ? '重新连接' : '连接'}</button>
-            </div>
+            <p className="computer-count">已搜索到 {DISCOVERED_COMPUTERS.length} 台电脑，默认选择第一台</p>
+            <button className="primary-button ftp-connect-computer" disabled={project.ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{project.ftpStatus === 'connecting' ? '连接中…' : '连接'}</button>
           </>
         )}
         {project.ftpStatus === 'connected' && !ftpEditing && !scanning && <button className="primary-button ftp-next" onClick={() => { if (autoPresetRef.current) { autoPresetRef.current = false; openPreset() } else setSheet(null) }}>{autoPresetRef.current ? '下一步' : '我知道了'}</button>}
