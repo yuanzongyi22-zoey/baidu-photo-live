@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 type Screen = 'login' | 'home' | 'create' | 'project' | 'ftp' | 'preset' | 'cameras' | 'settings' | 'tutorial' | 'me' | 'cache'
-type Sheet = 'ftp' | 'preset' | 'projectMenu' | 'rename' | 'deleteConfirm' | 'filter' | 'customerService' | 'cameraGuide' | null
+type Sheet = 'ftp' | 'preset' | 'projectMenu' | 'rename' | 'deleteConfirm' | 'filter' | 'cacheConfirm' | 'customerService' | 'cameraGuide' | null
 type PhotoFilter = 'all' | 'success' | 'failed'
 type PhotoSort = 'newest' | 'oldest'
 type FtpStatus = 'disconnected' | 'connecting' | 'connected' | 'failed'
@@ -355,6 +355,14 @@ export default function App() {
     notify('项目已删除')
   }
 
+  const clearAllCache = () => {
+    setProjects([])
+    setActiveProjectId(0)
+    setSheet(null)
+    setScreen('home')
+    notify('所有缓存已清理')
+  }
+
   const saveSettings = () => {
     const name = nameInput.trim()
     if (!name) { notify('项目名称不能为空'); return }
@@ -537,7 +545,7 @@ export default function App() {
           </div>
         </section>
         <section className="menu-card">
-          <button className="menu-row cache-clear-action" onClick={() => notify('所有缓存已清理')}><span>手动清理所有缓存</span><b>›</b></button>
+          <button className="menu-row cache-clear-action" onClick={() => setSheet('cacheConfirm')}><span>手动清理所有缓存</span><b>›</b></button>
         </section>
       </main>
     </div>
@@ -615,6 +623,7 @@ export default function App() {
       {sheet === 'projectMenu' && <><button className="sheet-option center" onClick={() => { const t = projects.find((p) => p.id === menuProjectId); setNameInput(t ? t.name : ''); setSheet('rename') }}>重命名项目</button><button className="sheet-option center danger" onClick={() => setSheet('deleteConfirm')}>删除项目</button></>}
       {sheet === 'rename' && <><div className="sheet-title"><button onClick={() => setSheet('projectMenu')}>‹ 返回</button><strong>重命名项目</strong><span /></div><div className="name-input-wrap sheet-input"><input className="text-field" value={nameInput} onChange={(e) => setNameInput(e.target.value)} maxLength={60} autoFocus /><span>{Array.from(nameInput).length}/60</span></div><button className="primary-button sheet-confirm" onClick={doRename}>保存</button></>}
       {sheet === 'deleteConfirm' && <div className="dialog-card delete-confirm-dialog" onClick={(e) => e.stopPropagation()}><h3>删除项目</h3><p>此项目仅在该列表删除，不会删除客户端的项目。</p><div className="dialog-actions"><button onClick={() => setSheet('projectMenu')}>取消</button><button className="danger" onClick={doDelete}>删除</button></div></div>}
+      {sheet === 'cacheConfirm' && <div className="dialog-card cache-confirm-dialog" onClick={(e) => e.stopPropagation()}><h3>清除所有缓存</h3><p>清除所有缓存将清空app现有项目所有数据，但不影响电脑端的项目和数据</p><div className="dialog-actions"><button onClick={() => setSheet(null)}>取消</button><button className="danger" onClick={clearAllCache}>确认清除</button></div></div>}
       {sheet === 'filter' && <><div className="sheet-title"><button onClick={() => setSheet(null)}>取消</button><strong>筛选与排序</strong><span /></div>
         <div className="sheet-filter-group"><span className="sheet-filter-label">上传状态</span><div className="sheet-filter-chips">{([['all', '全部'], ['success', '上传成功'], ['failed', '上传失败']] as const).map(([value, label]) => <button key={value} className={photoFilter === value ? 'active' : ''} onClick={() => setPhotoFilter(value)}>{photoFilter === value ? '✓ ' : ''}{label}</button>)}</div></div>
         <div className="sheet-filter-group"><span className="sheet-filter-label">排序方式</span><div className="sheet-filter-chips">{([['newest', '最新导入'], ['oldest', '最早导入']] as const).map(([value, label]) => <button key={value} className={photoSort === value ? 'active' : ''} onClick={() => setPhotoSort(value)}>{photoSort === value ? '✓ ' : ''}{label}</button>)}</div></div>
