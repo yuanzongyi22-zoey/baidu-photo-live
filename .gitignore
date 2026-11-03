@@ -8,6 +8,7 @@ vite.config.d.ts
 !.env.example
 node_modules/
 .next/
+out/
 dist/
 .env.local
 data/raw/*.normalized.json

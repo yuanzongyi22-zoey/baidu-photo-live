@@ -238,6 +238,7 @@ img { display: block; }
 .photo-tile.selected::after { content: ''; position: absolute; inset: 0; border: 3px solid var(--blue); background: rgb(36 104 242 / 10%); pointer-events: none; }
 .photo-open { width: 100%; height: 100%; display: block; padding: 0; background: transparent; touch-action: pan-y; user-select: none; -webkit-touch-callout: none; }
 .photo-tile.cleared { background: #fff; }
+.photo-tile.cleared img { opacity: .48; filter: grayscale(.25); }
 .checkmark { position: absolute; z-index: 3; right: 6px; top: 6px; width: 20px; height: 20px; display: grid; place-items: center; border: 2px solid #fff; border-radius: 50%; color: #fff; background: rgb(0 0 0 / 22%); font-size: 12px; }
 .photo-tile.selected .checkmark { background: var(--blue); }
 .mark { position: absolute; left: 5px; top: 5px; padding: 2px 5px; border-radius: 3px; color: #fff; font-size: 9px; }
@@ -348,6 +349,7 @@ img { display: block; }
 .create-card-art img { width: 100%; min-height: 132px; height: 100%; object-fit: cover; border-radius: 10px; }
 .tutorial-pill { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 14px; background: rgb(255 255 255 / 94%); color: #22355f; font-size: 10px; font-weight: 600; white-space: nowrap; box-shadow: 0 2px 8px rgb(20 40 80 / 16%); }
 .tutorial-pill svg { width: 12px; height: 12px; fill: none; stroke: var(--blue); stroke-width: 1.8; stroke-linejoin: round; }
+.tutorial-image-link { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 10px; background: transparent; }
 .ftp-field { margin-top: 14px; }
 .ftp-connect-tip { margin: 5px 2px -4px; color: #8f95a0; font-size: 11px; line-height: 17px; }
 .ftp-discovery-tip { margin: 8px 0 16px; padding: 14px; border-radius: 10px; background: #f3f6fb; }
@@ -498,6 +500,14 @@ img { display: block; }
 .me-profile .avatar { width: 56px; height: 56px; border-radius: 18px; }
 .me-profile h2 { margin: 0; font-size: 18px; }
 .me-profile p { margin: 5px 0 0; color: #727d91; font-size: 12px; }
+.me-menu-only { margin-top: 14px; }
+.cache-page { background: var(--page); }
+.cache-content { padding-top: 14px; }
+.cache-settings { padding-top: 0; padding-bottom: 0; }
+.cache-settings .switch-row { border-top: 0; gap: 16px; }
+.cache-settings .switch-row > span { min-width: 0; flex: 1; }
+.cache-settings .switch-row > span small { max-width: 220px; line-height: 16px; }
+.cache-clear-action { color: #e44b4b; }
 .preview-status { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); padding: 6px 14px; border-radius: 16px; background: rgb(255 255 255 / 14%); color: #fff; font-size: 13px; }
 .preview-status.failed { color: #ffb1b1; }
 .sheet-option.center { justify-content: center; text-align: center; grid-template-columns: 1fr; min-height: 56px; font-size: 15px; color: var(--blue); font-weight: 600; }

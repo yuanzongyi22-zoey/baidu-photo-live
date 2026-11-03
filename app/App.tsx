@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-type Screen = 'login' | 'home' | 'create' | 'project' | 'ftp' | 'preset' | 'cameras' | 'settings' | 'tutorial' | 'me'
-type Sheet = 'ftp' | 'preset' | 'projectMenu' | 'rename' | 'deleteConfirm' | 'filter' | 'logout' | 'customerService' | 'cameraGuide' | null
+type Screen = 'login' | 'home' | 'create' | 'project' | 'ftp' | 'preset' | 'cameras' | 'settings' | 'tutorial' | 'me' | 'cache'
+type Sheet = 'ftp' | 'preset' | 'projectMenu' | 'rename' | 'deleteConfirm' | 'filter' | 'customerService' | 'cameraGuide' | null
 type PhotoFilter = 'all' | 'success' | 'failed'
 type PhotoSort = 'newest' | 'oldest'
 type FtpStatus = 'disconnected' | 'connecting' | 'connected' | 'failed'
@@ -72,7 +72,7 @@ const nowStamp = () => {
 }
 // __BODY__
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('login')
+  const [screen, setScreen] = useState<Screen>('home')
   const [sheet, setSheet] = useState<Sheet>(null)
   const [projects, setProjects] = useState<Project[]>([DEFAULT_PROJECT])
   const [activeProjectId, setActiveProjectId] = useState(1)
@@ -106,6 +106,7 @@ export default function App() {
   const [code, setCode] = useState('')
   const [loginStep, setLoginStep] = useState<'phone' | 'code'>('phone')
   const [agreed, setAgreed] = useState(false)
+  const [autoClearCache, setAutoClearCache] = useState(true)
   const autoPresetRef = useRef(false)
   const projectNameRef = useRef<HTMLInputElement>(null)
   const photoTouchStartX = useRef<number | null>(null)
@@ -191,9 +192,7 @@ export default function App() {
   }
 
   const createProject = () => {
-    const name = nameInput.trim()
-    if (!name) { notify('请输入项目名称'); return }
-    if (nameExists(name)) { notify('项目名称已存在，请换一个名称'); return }
+    const name = nextProjectName()
     const id = Date.now()
     const next: Project = {
       id,
@@ -207,9 +206,9 @@ export default function App() {
     setProjects((items) => [next, ...items])
     setActiveProjectId(id)
     setNameInput('')
-    setScreen('project')
     autoPresetRef.current = !activeComputerId
-    if (!activeComputerId) window.setTimeout(() => { startComputerSearch(); setScreen('ftp') }, 280)
+    if (!activeComputerId) startComputerSearch()
+    setScreen('ftp')
   }
 
   const connectFtp = (fail = false) => {
@@ -396,11 +395,11 @@ export default function App() {
             <div className="create-card-copy">
               <h3>照片<span>边拍边传边修</span></h3>
               <p>FTP传输到百度网盘AI修图</p>
-              <button className="create-project-btn" onClick={() => { setNameInput(nextProjectName()); setScreen('create') }}>创建项目</button>
+              <button className="create-project-btn" onClick={createProject}>创建项目</button>
             </div>
             <div className="create-card-art">
-              <img src={DEMO_IMAGES[5]} alt="活动现场" />
-              <button className="tutorial-pill" onClick={() => window.open(HELP_CENTER_URL, '_blank', 'noopener,noreferrer')}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11a2 2 0 0 1 2 2v15a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 0 4 20.5zM20 5.5A2.5 2.5 0 0 0 17.5 3H13v17a2 2 0 0 1 2-2h2.5a2.5 2.5 0 0 1 2.5 2.5z" /></svg>使用教程</button>
+              <img src="tutorial-banner.png" alt="照片直播使用教程" />
+              <button className="tutorial-image-link" onClick={() => window.open(HELP_CENTER_URL, '_blank', 'noopener,noreferrer')} aria-label="使用教程" />
             </div>
           </div>
         </div>
@@ -481,7 +480,7 @@ export default function App() {
                     onPointerUp={cancelPhotoPress} onPointerCancel={cancelPhotoPress} onPointerLeave={cancelPhotoPress}
                     onContextMenu={(e) => { e.preventDefault(); cancelPhotoPress(); if (selectable) { suppressPhotoClick.current = true; setSelectingPhotos(true); setSelectedPhotoIds((ids) => ids.includes(photo.id) ? ids : [...ids, photo.id]) } }}
                     onClick={() => { if (suppressPhotoClick.current) { suppressPhotoClick.current = false; return }; if (selectingPhotos) { if (selectable) togglePhotoSelection(photo.id); return }; if (photo.status !== 'cleared') setPreviewPhoto(photo) }}>
-                    {photo.status !== 'cleared' && <img src={photo.url} alt="活动照片" draggable={false} />}
+                    <img src={photo.url} alt="活动照片" draggable={false} />
                     {selectingPhotos && selectable && <span className="checkmark">{selected ? '✓' : ''}</span>}
                   </button>
                   <span className={`photo-status ${photo.status}`}>{photo.status === 'uploading' && <i />}{STATUS_LABEL[photo.status]}</span>
@@ -520,10 +519,24 @@ export default function App() {
     <div className="screen me-page">
       {topbar('我的', () => setScreen('home'))}
       <main className="content me-content">
-        <div className="me-profile"><div className="avatar">照</div><div><h2>百度照片直播</h2><p>本地演示账号</p></div></div>
-        <section className="credit-card"><span>AI 修图权益</span><strong>12 <small>张修图券</small></strong><div><span>同步百度网盘AI修图的修图券数量。</span><button onClick={() => window.open('https://pan.baidu.com/aiphoto/commodity?enterprise=1&from=AIPS_page_top_person_pay&app_channel=&app_version=3.18.0-alpha.34', '_blank', 'noopener,noreferrer')}>购买修图券</button></div></section>
-        <section className="menu-card"><button className="menu-row" onClick={() => window.open(HELP_CENTER_URL, '_blank', 'noopener,noreferrer')}><span>教程中心</span><b>›</b></button><button className="menu-row" onClick={() => setSheet('customerService')}><span>人工客服</span><b>›</b></button><button className="menu-row" onClick={() => notify('百度照片直播 Demo v1.0')}><span>关于百度照片直播</span><b>›</b></button></section>
-        <section className="menu-card"><button className="menu-row danger" onClick={() => setSheet('logout')}><span>退出账号</span><b>›</b></button></section>
+        <section className="menu-card me-menu-only"><button className="menu-row" onClick={() => window.open(HELP_CENTER_URL, '_blank', 'noopener,noreferrer')}><span>教程中心</span><b>›</b></button><button className="menu-row" onClick={() => setSheet('customerService')}><span>人工客服</span><b>›</b></button><button className="menu-row" onClick={() => notify('百度照片直播 Demo v1.0')}><span>关于</span><b>›</b></button><button className="menu-row" onClick={() => setScreen('cache')}><span>清除缓存</span><b>›</b></button></section>
+      </main>
+    </div>
+  )
+
+  const renderCache = () => (
+    <div className="screen cache-page">
+      {topbar('清除缓存', () => setScreen('me'))}
+      <main className="content cache-content">
+        <section className="menu-card cache-settings">
+          <div className="switch-row">
+            <span><strong>缓存自动清理</strong><small>开启后，缓存文件将在保留 7 天后自动清理</small></span>
+            <button className={`switch ${autoClearCache ? 'on' : ''}`} onClick={() => setAutoClearCache((value) => !value)} aria-label="缓存自动清理"><i /></button>
+          </div>
+        </section>
+        <section className="menu-card">
+          <button className="menu-row cache-clear-action" onClick={() => notify('所有缓存已清理')}><span>手动清理所有缓存</span><b>›</b></button>
+        </section>
       </main>
     </div>
   )
@@ -541,7 +554,7 @@ export default function App() {
   )
   const renderFtpPage = () => (
     <div className="screen ftp-page">
-      {topbar('FTP服务器连接', scanning ? () => setScanning(false) : closeFtpPage)}
+      {topbar('手机连接到电脑', scanning ? () => setScanning(false) : closeFtpPage)}
       <main className="content ftp-page-content">
         {project.ftpStatus === 'connected' && !ftpEditing ? <>
           <div className="ftp-success-card">
@@ -561,7 +574,6 @@ export default function App() {
             <p className="computer-count">已搜索到 {DISCOVERED_COMPUTERS.length} 台电脑</p>
           </>}
           <div className="ftp-manual-section">
-            <div className="manual-server-fields"><label><span>服务器地址</span><input value={server} onChange={(e) => { setSelectedComputerId(null); setServer(e.target.value) }} placeholder="请输入服务器地址" /></label><label><span>端口</span><input value={port} onChange={(e) => { setSelectedComputerId(null); setPort(e.target.value.replace(/\D/g, '')) }} inputMode="numeric" placeholder="请输入端口" /></label></div>
             <div className="ftp-bottom-actions"><button className="scan-entry" onClick={() => setScanning(true)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 8h3v3H8zM14 8h2v2h-2zM8 14h2v2H8zM13 13h3v3h-3z" /></svg><strong>扫码连接</strong></button><button className="primary-button ftp-connect-computer" disabled={!server.trim() || !port.trim() || project.ftpStatus === 'connecting'} onClick={() => connectFtp(false)}>{project.ftpStatus === 'connecting' ? '连接中…' : '连接'}</button></div>
           </div>
         </>}
@@ -605,7 +617,6 @@ export default function App() {
         <div className="sheet-filter-group"><span className="sheet-filter-label">上传状态</span><div className="sheet-filter-chips">{([['all', '全部'], ['success', '上传成功'], ['failed', '上传失败']] as const).map(([value, label]) => <button key={value} className={photoFilter === value ? 'active' : ''} onClick={() => setPhotoFilter(value)}>{photoFilter === value ? '✓ ' : ''}{label}</button>)}</div></div>
         <div className="sheet-filter-group"><span className="sheet-filter-label">排序方式</span><div className="sheet-filter-chips">{([['newest', '最新导入'], ['oldest', '最早导入']] as const).map(([value, label]) => <button key={value} className={photoSort === value ? 'active' : ''} onClick={() => setPhotoSort(value)}>{photoSort === value ? '✓ ' : ''}{label}</button>)}</div></div>
         <button className="primary-button sheet-confirm" onClick={() => setSheet(null)}>完成</button></>}
-      {sheet === 'logout' && <div className="dialog-card" onClick={(e) => e.stopPropagation()}><h3>退出账号</h3><p>确定要退出当前账号吗？</p><div className="dialog-actions"><button onClick={() => setSheet(null)}>取消</button><button className="danger" onClick={() => { setSheet(null); setLoginStep('phone'); setCode(''); setScreen('login') }}>退出</button></div></div>}
       {sheet === 'customerService' && <div className="service-qr-dialog" onClick={(e) => e.stopPropagation()}>
         <button className="service-close" onClick={() => setSheet(null)} aria-label="关闭">×</button>
         <div className="service-qr-card"><svg viewBox="0 0 29 29" className="service-qr" aria-label="客服二维码">{Array.from({ length: 29 }, (_, r) => Array.from({ length: 29 }, (_, c) => {
@@ -627,8 +638,7 @@ export default function App() {
   }
 
   let content: React.ReactNode
-  if (screen === 'login') content = renderLogin()
-  else if (screen === 'home') content = renderHome()
+  if (screen === 'home') content = renderHome()
   else if (screen === 'create') content = renderCreate()
   else if (screen === 'project') content = renderProject()
   else if (screen === 'ftp') content = renderFtpPage()
@@ -636,6 +646,7 @@ export default function App() {
   else if (screen === 'cameras') content = renderCameraPage()
   else if (screen === 'settings') content = renderSettings()
   else if (screen === 'me') content = renderMe()
+  else if (screen === 'cache') content = renderCache()
   else content = renderTutorial()
 
   return <div className="device-stage"><div className="iphone-frame">
