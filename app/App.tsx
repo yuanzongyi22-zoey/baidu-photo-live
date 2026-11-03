@@ -107,7 +107,6 @@ export default function App() {
   const [loginStep, setLoginStep] = useState<'phone' | 'code'>('phone')
   const [agreed, setAgreed] = useState(false)
   const [autoClearCache, setAutoClearCache] = useState(true)
-  const autoPresetRef = useRef(false)
   const projectNameRef = useRef<HTMLInputElement>(null)
   const photoTouchStartX = useRef<number | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -206,9 +205,11 @@ export default function App() {
     setProjects((items) => [next, ...items])
     setActiveProjectId(id)
     setNameInput('')
-    autoPresetRef.current = !activeComputerId
-    if (!activeComputerId) startComputerSearch()
-    setScreen('ftp')
+    if (activeComputerId) setScreen('project')
+    else {
+      startComputerSearch()
+      setScreen('ftp')
+    }
   }
 
   const connectFtp = (fail = false) => {
@@ -221,7 +222,8 @@ export default function App() {
       setActiveComputerId(target?.id ?? `manual:${server}:${port}`)
       patchProject(activeProjectId, { ftpStatus: 'connected' })
       setFtpEditing(false)
-      notify('FTP 已连接电脑')
+      setScreen('project')
+      notify('FTP连接成功')
     }, 900)
   }
 
@@ -236,12 +238,12 @@ export default function App() {
       setActiveComputerId(target.id)
       patchProject(activeProjectId, { ftpStatus: 'connected' })
       setFtpEditing(false)
+      setScreen('project')
       notify('FTP连接成功')
     }, 500)
   }
 
   const openFtpManually = () => {
-    autoPresetRef.current = false
     setFtpEditing(false)
     setScanning(false)
     if (project.ftpStatus !== 'connected') startComputerSearch()
@@ -561,7 +563,7 @@ export default function App() {
             <div className="ftp-success-head"><span className="ok-icon">✓</span><strong>FTP连接成功</strong><button className="change-link" onClick={() => { setFtpEditing(true); startComputerSearch() }}>更换连接</button></div>
             <div className="ftp-info-rows"><div><span>服务器地址</span><b>{server}</b></div><div><span>端口</span><b>{port}</b></div></div>
           </div>
-          <div className="ftp-success-action"><button className="primary-button ftp-next" onClick={() => { if (autoPresetRef.current) { autoPresetRef.current = false; openPreset() } else closeFtpPage() }}>{autoPresetRef.current ? '下一步' : '我知道了'}</button></div>
+          <div className="ftp-success-action"><button className="primary-button ftp-next" onClick={closeFtpPage}>我知道了</button></div>
         </> : scanning ? <div className="scan-page-panel">
           <button className="scan-frame" onClick={connectScannedComputer}>
             <svg viewBox="0 0 21 21" className="scan-qr" aria-hidden="true">{Array.from({ length: 21 }, (_, r) => Array.from({ length: 21 }, (_, c) => ((r * 7 + c * 13 + r * c) % 5) < 2 ? <rect key={r * 21 + c} x={c} y={r} width="1" height="1" /> : null))}</svg>
