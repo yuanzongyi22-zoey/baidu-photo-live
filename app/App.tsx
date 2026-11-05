@@ -423,7 +423,7 @@ export default function App() {
                   <strong>{item.name}</strong>
                   <span>创建时间：{item.createdAt}</span>
                 </div>
-                <button className="more" onClick={(e) => { e.stopPropagation(); setMenuProjectId(item.id); setSheet('projectMenu') }}>•••</button>
+                <button className="more" onClick={(e) => { e.stopPropagation(); setMenuProjectId(item.id); setSheet('projectMenu') }} aria-label="项目更多操作"><i /><i /><i /></button>
               </div>
             )
           })}
@@ -456,7 +456,7 @@ export default function App() {
       {topbar(project.name, () => setScreen('home'), <button className="text-action" onClick={() => { setNameInput(project.name); setScreen('settings') }}>设置</button>)}
       <main className={`content project-content ${selectingPhotos ? 'selecting-photos' : ''}`}>
         <div className="project-top-actions">
-          <button className={`ftp-top ${project.ftpStatus === 'connected' ? 'connected' : 'disconnected'}`} onClick={openFtpManually}><span className="flat-icon"><ComputerIcon /></span><strong>{project.ftpStatus === 'connected' ? 'FTP已连接' : 'FTP未连接'}</strong><em className={project.ftpStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} /></button>
+          <button className={`ftp-top ${project.ftpStatus === 'connected' ? 'connected' : 'disconnected'}`} onClick={openFtpManually}><span className="flat-icon"><ComputerIcon /></span><strong>{project.ftpStatus === 'connected' ? '电脑已连接' : '电脑未连接'}</strong><em className={project.ftpStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} /></button>
           <button className={`camera-status-card ${project.cameraStatus === 'connected' ? 'on' : 'off'}`} onClick={cameraTap}>
             <span className="flat-icon cam-icon"><CameraIcon /></span><strong>{project.cameraStatus === 'connected' ? '相机已连接' : '相机未连接'}</strong><em className={project.cameraStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} />
           </button>

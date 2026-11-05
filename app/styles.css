@@ -484,6 +484,8 @@ img { display: block; }
 .project-icon svg { width: 27px; height: 27px; fill: currentColor; stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; filter: drop-shadow(0 2px 3px rgb(58 91 190 / 16%)); }
 .project-card.plain .project-copy span { margin-bottom: 0; }
 .project-card.plain .more { width: 18px; height: 24px; padding: 0; align-self: center; border-radius: 6px; background: transparent; color: #9aa0aa; font-size: 9px; line-height: 1; letter-spacing: -1px; white-space: nowrap; }
+.project-card.plain .more { display: flex; align-items: center; justify-content: center; gap: 2px; }
+.project-card.plain .more i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
 .project-card.plain .more:hover { background: #f0f2f5; }
 .camera-status-card { margin: 0; text-align: center; }
 .camera-status-card.on { color: #17191e; background: #fff; }
@@ -508,6 +510,7 @@ img { display: block; }
 .cache-settings .switch-row > span { min-width: 0; flex: 1; }
 .cache-settings .switch-row > span small { max-width: 220px; line-height: 16px; }
 .cache-clear-action { color: #e44b4b; }
+.photo-viewer header { top: 34px; padding-top: 0; }
 .preview-status { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); padding: 6px 14px; border-radius: 16px; background: rgb(255 255 255 / 14%); color: #fff; font-size: 13px; }
 .preview-status.failed { color: #ffb1b1; }
 .sheet-option.center { justify-content: center; text-align: center; grid-template-columns: 1fr; min-height: 56px; font-size: 15px; color: var(--blue); font-weight: 600; }
