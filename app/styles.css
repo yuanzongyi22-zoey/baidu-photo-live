@@ -523,15 +523,18 @@ img { display: block; }
 .toolbar > button { min-width: 44px; min-height: 44px; padding: 8px; font-size: 13px; }
 .photo-status { min-height: 25px; padding: 5px 6px; font-size: 12px; line-height: 15px; }
 .photo-status i { width: 10px; height: 10px; }
-.retry-badge, .delete-badge { right: 2px; bottom: 1px; min-width: 44px; min-height: 44px; padding: 16px 8px 4px; border-radius: 8px 0 0 0; font-size: 12px; }
+.retry-badge, .delete-badge { right: 2px; bottom: 1px; width: 44px; height: 44px; padding: 16px 2px 0; border-radius: 0; color: #fff; background: linear-gradient(transparent 16px, #ee5757 16px); font-size: 12px; font-weight: 600; }
+.delete-badge { background: linear-gradient(transparent 16px, #555b65 16px); }
 .batch-photo-bar { bottom: max(34px, env(safe-area-inset-bottom)); min-height: 72px; }
 .batch-photo-bar button { min-width: 60px; height: 44px; border-radius: 22px; font-size: 13px; }
 .batch-photo-bar .batch-cancel { min-width: 44px; }
 .switch-row > span strong { font-size: 14px; line-height: 21px; }
 .switch-row > span small { font-size: 12px; line-height: 18px; }
-.switch, .camera-switch { box-sizing: content-box; margin: -9px 0; padding-top: 12px; padding-bottom: 12px; background-clip: content-box; }
-.switch i { margin: 0 3px; }
-.camera-switch i { top: 12px; }
+.switch, .camera-switch { position: relative; box-sizing: border-box; width: 44px; height: 44px; margin: 0; padding: 9px 0; border-radius: 0; background: transparent; }
+.switch::before, .camera-switch::before { content: ''; position: absolute; inset: 9px 0; border-radius: 13px; background: #d3d6dc; transition: background .2s; }
+.switch i, .camera-switch i { position: relative; z-index: 1; left: 3px; top: 3px; margin: 0; }
+.switch.on, .camera-switch.on { background: transparent; }
+.switch.on::before, .camera-switch.on::before { background: var(--blue); }
 .menu-row { font-size: 14px; }
 .menu-row b { font-size: 16px; }
 .ftp-page-content { padding-bottom: 126px; }
@@ -554,6 +557,7 @@ img { display: block; }
 .service-close { top: 5px; right: 7px; width: 44px; height: 44px; }
 .camera-guide-link { min-height: 44px; padding: 10px 12px; font-size: 14px; }
 .photo-viewer header button { min-width: 50px; min-height: 48px; }
+.photo-viewer header { top: 34px; padding-top: 0; }
 .preview-arrow { width: 44px; height: 58px; }
 .viewer-actions { bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px)); }
 .cache-settings .switch-row > span small { font-size: 12px; line-height: 18px; }
