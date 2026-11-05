@@ -508,55 +508,6 @@ img { display: block; }
 .cache-settings .switch-row > span { min-width: 0; flex: 1; }
 .cache-settings .switch-row > span small { max-width: 220px; line-height: 16px; }
 .cache-clear-action { color: #e44b4b; }
-
-/* V3 mobile usability pass: readable type, 44px targets, and safe fixed actions. */
-.topbar h1 { font-size: 17px; }
-.icon-button { min-width: 46px; height: 44px; }
-.topbar-action > button { min-width: 44px; min-height: 44px; font-size: 14px; }
-.header-me { width: 44px; height: 44px; }
-.create-project-btn { height: 48px; border-radius: 11px; }
-.project-card.plain { grid-template-columns: 48px 1fr 44px; }
-.project-card.plain .more { width: 44px; height: 44px; border-radius: 10px; font-size: 14px; }
-.project-copy span { font-size: 12px; line-height: 18px; }
-.project-top-actions button strong { font-size: 12px; line-height: 18px; }
-.filter-chips button { min-height: 44px; padding: 8px 12px; font-size: 13px; }
-.toolbar > button { min-width: 44px; min-height: 44px; padding: 8px; font-size: 13px; }
-.photo-status { min-height: 25px; padding: 5px 6px; font-size: 12px; line-height: 15px; }
-.photo-status i { width: 10px; height: 10px; }
-.retry-badge, .delete-badge { right: 2px; bottom: 1px; min-width: 44px; min-height: 44px; padding: 16px 8px 4px; border-radius: 8px 0 0 0; font-size: 12px; }
-.batch-photo-bar { bottom: max(34px, env(safe-area-inset-bottom)); min-height: 72px; }
-.batch-photo-bar button { min-width: 60px; height: 44px; border-radius: 22px; font-size: 13px; }
-.batch-photo-bar .batch-cancel { min-width: 44px; }
-.switch-row > span strong { font-size: 14px; line-height: 21px; }
-.switch-row > span small { font-size: 12px; line-height: 18px; }
-.switch, .camera-switch { box-sizing: content-box; margin: -9px 0; padding-top: 12px; padding-bottom: 12px; background-clip: content-box; }
-.switch i { margin: 0 3px; }
-.camera-switch i { top: 12px; }
-.menu-row { font-size: 14px; }
-.menu-row b { font-size: 16px; }
-.ftp-page-content { padding-bottom: 126px; }
-.ftp-manual-section, .ftp-success-action, .preset-page-action { bottom: max(38px, calc(env(safe-area-inset-bottom) + 16px)); }
-.computer-option small { font-size: 12px; line-height: 18px; }
-.ftp-success-head .change-link { min-width: 88px; min-height: 44px; font-size: 14px; }
-.topbar-action .preset-reset { min-height: 44px; font-size: 14px; }
-.preset-sync-tip { font-size: 12px; line-height: 18px; }
-.preset-panel .preset-tabs button { min-height: 44px; padding: 10px; font-size: 14px; }
-.preset-name-list button { min-height: 48px; }
-.camera-page-tip { font-size: 13px; line-height: 20px; }
-.camera-device-head small { font-size: 12px; line-height: 18px; }
-.camera-format-row > span { font-size: 13px; }
-.camera-format-row button { min-width: 52px; height: 44px; font-size: 12px; }
-.camera-sd-warning { font-size: 13px; line-height: 20px; }
-.sheet-title button { min-height: 44px; font-size: 14px; }
-.sheet-state div small { font-size: 12px; line-height: 18px; }
-.sheet-filter-chips button { min-height: 44px; font-size: 13px; }
-.dialog-actions button { height: 46px; border-radius: 23px; }
-.service-close { top: 5px; right: 7px; width: 44px; height: 44px; }
-.camera-guide-link { min-height: 44px; padding: 10px 12px; font-size: 14px; }
-.photo-viewer header button { min-width: 50px; min-height: 48px; }
-.preview-arrow { width: 44px; height: 58px; }
-.viewer-actions { bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px)); }
-.cache-settings .switch-row > span small { font-size: 12px; line-height: 18px; }
 .preview-status { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); padding: 6px 14px; border-radius: 16px; background: rgb(255 255 255 / 14%); color: #fff; font-size: 13px; }
 .preview-status.failed { color: #ffb1b1; }
 .sheet-option.center { justify-content: center; text-align: center; grid-template-columns: 1fr; min-height: 56px; font-size: 15px; color: var(--blue); font-weight: 600; }
