@@ -373,6 +373,8 @@ img { display: block; }
 .computer-searching strong { font-size: 13px; font-weight: 500; }
 .ftp-page { display: flex; flex-direction: column; background: var(--page); }
 .ftp-page > .topbar { flex: 0 0 62px; }
+.ftp-page > .topbar { grid-template-columns: 72px 1fr 72px; padding-left: 20px; padding-right: 20px; }
+.ftp-page > .topbar > div:first-child { margin-left: -12px; }
 .ftp-page-content { min-height: 0; flex: 1; padding-top: 12px; padding-bottom: 190px; overflow-y: auto; }
 .ftp-page .ftp-success-card { margin-top: 8px; background: #fff; }
 .ftp-success-action, .preset-page-action { position: absolute; left: 16px; right: 16px; bottom: 38px; z-index: 10; padding-top: 10px; background: var(--page); }
@@ -398,6 +400,12 @@ img { display: block; }
 .preset-page-content { min-height: 0; flex: 1; padding-top: 12px; padding-bottom: 108px; overflow: hidden; }
 .preset-page .preset-panel { height: 100%; display: flex; flex-direction: column; padding: 8px 2px 4px; border-radius: 0; background: transparent; }
 .preset-page .preset-name-list { min-height: 0; max-height: none; flex: 1; overflow-y: auto; }
+.sync-previous-option { width: 100%; min-height: 45px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; padding: 0 8px; border-radius: 7px; background: transparent; text-align: left; font-size: var(--font-level-3); }
+.sync-previous-option i { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid #cfd3da; border-radius: 50%; color: #fff; font-size: 12px; font-style: normal; }
+.sync-previous-option.active { background: #f3f4f6; }
+.sync-previous-option.active i { border-color: var(--blue); background: var(--blue); }
+.preset-name-list.disabled { opacity: .38; }
+.preset-name-list.disabled button { cursor: not-allowed; }
 .preset-page-action .primary-button { width: 100%; height: 50px; }
 .topbar-action .preset-reset { min-width: 44px; padding: 8px 0; background: transparent; text-align: right !important; }
 .camera-page { display: flex; flex-direction: column; background: var(--page); }

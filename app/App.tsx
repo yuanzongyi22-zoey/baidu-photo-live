@@ -95,6 +95,7 @@ export default function App() {
   const [activeCameraId, setActiveCameraId] = useState('camera-a')
   const [presetDraft, setPresetDraft] = useState('无预设')
   const [presetTab, setPresetTab] = useState<'recommended' | 'mine'>('recommended')
+  const [syncPrevious, setSyncPrevious] = useState(false)
   const [aiSelect, setAiSelect] = useState(true)
   const [aiBeauty, setAiBeauty] = useState(true)
   const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null)
@@ -263,14 +264,16 @@ export default function App() {
   }
 
   const applyPreset = () => {
-    patchProject(activeProjectId, { preset: presetDraft })
+    patchProject(activeProjectId, { preset: syncPrevious ? '同步上一张' : presetDraft })
     setScreen('project')
     notify('预设已应用')
     if (project && project.photos.length === 0 && project.cameraStatus === 'connected') window.setTimeout(() => startShooting(activeProjectId), 500)
   }
 
   const openPreset = () => {
-    setPresetDraft(project?.preset || '无预设')
+    const savedPreset = project?.preset || '无预设'
+    setSyncPrevious(savedPreset === '同步上一张')
+    setPresetDraft(savedPreset === '同步上一张' ? '无预设' : savedPreset)
     setScreen('preset')
   }
 
@@ -578,7 +581,7 @@ export default function App() {
           </button>
           <p>将电脑端二维码放入框内，点击二维码模拟识别</p>
         </div> : <>
-          <div className="ftp-discovery-tip"><strong>搜索附近的电脑</strong><p>请确保手机和电脑连接同一个 WiFi，并在 App 和百度网盘 AI 修图客户端登录同一个账号。</p></div>
+          <div className="ftp-discovery-tip"><strong>搜索附近的电脑</strong><p>请确保手机和电脑连接同一个 WiFi。</p></div>
           {searchingComputers ? <div className="computer-searching" role="status"><i /><strong>正在搜索电脑…</strong></div> : <>
             <div className="computer-list" role="radiogroup" aria-label="可连接的电脑">{DISCOVERED_COMPUTERS.map((computer) => <button key={computer.id} className={`computer-option ${selectedComputerId === computer.id ? 'selected' : ''}`} role="radio" aria-checked={selectedComputerId === computer.id} onClick={() => selectComputer(computer)}><span className="computer-device-icon"><ComputerIcon /></span><span className="computer-copy"><strong>{computer.name}</strong><small>{computer.address} · 端口 {computer.port}</small></span><i>{selectedComputerId === computer.id ? '✓' : ''}</i></button>)}</div>
             <p className="computer-count">已搜索到 {DISCOVERED_COMPUTERS.length} 台电脑</p>
@@ -592,9 +595,9 @@ export default function App() {
   )
   const renderPresetPage = () => (
     <div className="screen preset-page">
-      {topbar('预设', () => { setPresetDraft(project.preset); setScreen('project') }, <button className="preset-reset" onClick={() => setPresetDraft('无预设')}>重置</button>)}
+      {topbar('预设', () => { setSyncPrevious(project.preset === '同步上一张'); setPresetDraft(project.preset === '同步上一张' ? '无预设' : project.preset); setScreen('project') }, <button className="preset-reset" onClick={() => { setSyncPrevious(false); setPresetDraft('无预设') }}>重置</button>)}
       <main className="content preset-page-content">
-        <div className="preset-panel"><div className="preset-sync-tip">{presetTab === 'recommended' ? '同步百度网盘AI修图客户端推荐预设' : '同步当前账号在百度网盘AI修图客户端的预设'}</div><div className="preset-tabs"><button className={presetTab === 'recommended' ? 'active' : ''} onClick={() => setPresetTab('recommended')}>推荐预设</button><button className={presetTab === 'mine' ? 'active' : ''} onClick={() => setPresetTab('mine')}>我的预设</button></div><div className="preset-name-list">{(presetTab === 'recommended' ? RECOMMENDED_PRESETS : MY_PRESETS).map((name) => <button className={presetDraft === name ? 'active' : ''} key={name} onClick={() => setPresetDraft(name)}><span>{name}</span>{presetDraft === name && <b>✓</b>}</button>)}</div></div>
+        <div className="preset-panel"><button className={`sync-previous-option ${syncPrevious ? 'active' : ''}`} onClick={() => { setSyncPrevious((value) => !value); setPresetDraft('无预设') }}><span>同步上一张</span><i>{syncPrevious ? '✓' : ''}</i></button><div className="preset-sync-tip">同步百度网盘AI修图客户端预设</div><div className="preset-tabs"><button className={presetTab === 'recommended' ? 'active' : ''} onClick={() => setPresetTab('recommended')}>推荐预设</button><button className={presetTab === 'mine' ? 'active' : ''} onClick={() => setPresetTab('mine')}>我的预设</button></div><div className={`preset-name-list ${syncPrevious ? 'disabled' : ''}`}>{(presetTab === 'recommended' ? RECOMMENDED_PRESETS : MY_PRESETS).map((name) => <button disabled={syncPrevious} className={!syncPrevious && presetDraft === name ? 'active' : ''} key={name} onClick={() => { setSyncPrevious(false); setPresetDraft(name) }}><span>{name}</span>{!syncPrevious && presetDraft === name && <b>✓</b>}</button>)}</div></div>
       </main>
       <div className="preset-page-action"><button className="primary-button" onClick={applyPreset}>应用</button></div>
     </div>
