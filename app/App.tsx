@@ -521,14 +521,14 @@ export default function App() {
           <label className="settings-section-title" htmlFor="project-name">项目名称</label>
           <div className="name-input-wrap"><input id="project-name" className="text-field" value={nameInput} onChange={(e) => setNameInput(e.target.value)} onBlur={saveSettings} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) e.currentTarget.blur() }} maxLength={60} /><span>{Array.from(nameInput).length}/60</span></div>
         </section>
+        <section className="setting-section settings-preset-card">
+          <button className="settings-preset-entry" onClick={openPreset}><span><strong className="settings-section-title">预设</strong><small>当前预设：{project.preset}</small></span><b aria-hidden="true">›</b></button>
+        </section>
         <section className="setting-section settings-details">
           <h3 className="settings-section-title">项目详情</h3>
           <div className="readonly-row"><span>创建时间</span><b>{project.createdAt}</b></div>
           <div className="readonly-row"><span>照片数量</span><b>{project.photos.length} 张</b></div>
           <div className="readonly-row"><span>已上传</span><b>{uploaded} 张</b></div>
-        </section>
-        <section className="setting-section settings-preset-card">
-          <button className="settings-preset-entry" onClick={openPreset}><span><strong className="settings-section-title">预设</strong><small>当前预设：{project.preset}</small></span><b aria-hidden="true">›</b></button>
         </section>
       </main>
     </div>
