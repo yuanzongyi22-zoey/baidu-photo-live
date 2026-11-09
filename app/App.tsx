@@ -224,7 +224,7 @@ export default function App() {
       patchProject(activeProjectId, { ftpStatus: 'connected' })
       setFtpEditing(false)
       setScreen('project')
-      notify('FTP连接成功')
+      notify('电脑已连接成功')
     }, 900)
   }
 
@@ -240,7 +240,7 @@ export default function App() {
       patchProject(activeProjectId, { ftpStatus: 'connected' })
       setFtpEditing(false)
       setScreen('project')
-      notify('FTP连接成功')
+      notify('电脑已连接成功')
     }, 500)
   }
 
@@ -577,8 +577,8 @@ export default function App() {
       <main className="content ftp-page-content">
         {project.ftpStatus === 'connected' && !ftpEditing ? <>
           <div className="ftp-success-card">
-            <div className="ftp-success-head"><span className="ok-icon">✓</span><strong>FTP连接成功</strong><button className="change-link" onClick={() => { setFtpEditing(true); startComputerSearch() }}>更换连接</button></div>
-            <div className="ftp-info-rows"><div><span>服务器地址</span><b>{server}</b></div><div><span>端口</span><b>{port}</b></div></div>
+            <div className="ftp-success-head"><span className="ok-icon">✓</span><strong>电脑连接成功</strong><button className="change-link" onClick={() => { setFtpEditing(true); startComputerSearch() }}>更换连接</button></div>
+            <div className="ftp-info-rows"><div><span>当前连接电脑：</span><b>{DISCOVERED_COMPUTERS.find((computer) => activeComputerId ? computer.id === activeComputerId : computer.address === server)?.name.replace('工作室的 ', '') || '电脑型号未知'}</b></div><div><span>服务器地址</span><b>{server}</b></div><div><span>端口</span><b>{port}</b></div></div>
           </div>
           <div className="ftp-success-action"><button className="primary-button ftp-next" onClick={closeFtpPage}>我知道了</button></div>
         </> : scanning ? <div className="scan-page-panel">
