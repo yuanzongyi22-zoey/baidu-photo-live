@@ -168,7 +168,7 @@ img { display: block; }
 .sticky-action.dual .primary-button { flex: 1; }
 
 .project-screen { display: flex; flex-direction: column; }
-.project-screen > .topbar { flex: 0 0 62px; }
+.project-screen > .topbar { flex: 0 0 62px; grid-template-columns: 72px minmax(0, 1fr) 72px; }
 .project-content { min-height: 0; flex: 1; padding-top: 4px; padding-bottom: 34px; overflow-y: auto; scrollbar-width: none; }
 .project-content::-webkit-scrollbar { display: none; }
 .upload-summary-line { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 2px 2px 8px; color: #767b83; font-size: var(--font-level-4); line-height: var(--line-level-4); }
@@ -176,9 +176,18 @@ img { display: block; }
 .cloud-notice { display: flex; align-items: flex-start; gap: 11px; padding: 15px 14px; border: 1px solid #f4e6d1; border-radius: 8px; background: #fffaf2; }
 .cloud-notice > span { width: 21px; height: 21px; display: grid; flex: 0 0 21px; place-items: center; margin-top: 1px; border-radius: 50%; color: #fff; background: #ff9d0a; font-size: 12px; font-weight: 800; }
 .cloud-notice p { margin: 0; font-size: 13px; line-height: 1.55; }
-.project-top-actions { display: grid; grid-template-columns: 1.25fr 1.25fr .72fr; gap: 7px; margin: 5px 0 12px; }
+.project-top-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 5px 0 12px; }
 .project-top-actions button { min-width: 0; min-height: 55px; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 7px; border-radius: 13px; background: #fff; box-shadow: 0 3px 12px rgb(30 45 70 / 5%); }
 .project-top-actions button span { font: 18px/1 Arial; }
+.project-top-actions button .device-status-copy { min-width: 0; text-align: left; font: inherit; }
+.device-status-copy strong, .device-status-copy small { display: block; }
+.project-top-actions button .device-status-copy strong { line-height: 18px; }
+.device-status-copy small { max-width: 110px; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; line-height: 15px; opacity: .65; }
+.settings-preset-entry { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); background: transparent; text-align: left; }
+.settings-preset-entry > span { min-width: 0; }
+.settings-preset-entry strong { display: block; font-size: 14px; }
+.settings-preset-entry small { display: block; margin-top: 6px; color: #757b85; font-size: 12px; line-height: 18px; overflow-wrap: anywhere; }
+.settings-preset-entry > b { color: #9aa0aa; font-size: 20px; font-weight: 400; }
 .project-top-actions .flat-icon { width: 27px; height: 27px; display: grid; place-items: center; flex: 0 0 27px; border-radius: 8px; color: var(--blue); background: #eaf1ff; }
 .project-top-actions .flat-icon-svg { width: 16px; height: 16px; fill: currentColor; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .project-top-actions .ftp-top.disconnected .flat-icon,

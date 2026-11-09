@@ -265,7 +265,7 @@ export default function App() {
 
   const applyPreset = () => {
     patchProject(activeProjectId, { preset: syncPrevious ? '同步上一张' : presetDraft })
-    setScreen('project')
+    setScreen('settings')
     notify('预设已应用')
     if (project && project.photos.length === 0 && project.cameraStatus === 'connected') window.setTimeout(() => startShooting(activeProjectId), 500)
   }
@@ -459,11 +459,10 @@ export default function App() {
       {topbar(project.name, () => setScreen('home'), <button className="text-action" onClick={() => { setNameInput(project.name); setScreen('settings') }}>设置</button>)}
       <main className={`content project-content ${selectingPhotos ? 'selecting-photos' : ''}`}>
         <div className="project-top-actions">
-          <button className={`ftp-top ${project.ftpStatus === 'connected' ? 'connected' : 'disconnected'}`} onClick={openFtpManually}><span className="flat-icon"><ComputerIcon /></span><strong>{project.ftpStatus === 'connected' ? '电脑已连接' : '电脑未连接'}</strong><em className={project.ftpStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} /></button>
+          <button className={`ftp-top ${project.ftpStatus === 'connected' ? 'connected' : 'disconnected'}`} onClick={openFtpManually}><span className="flat-icon"><ComputerIcon /></span><span className="device-status-copy"><strong>{project.ftpStatus === 'connected' ? '电脑已连接' : '电脑未连接'}</strong><small>{project.ftpStatus === 'connected' ? (DISCOVERED_COMPUTERS.find((computer) => activeComputerId ? computer.id === activeComputerId : computer.address === server)?.name.replace('工作室的 ', '') || '电脑型号未知') : '暂未连接电脑'}</small></span><em className={project.ftpStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} /></button>
           <button className={`camera-status-card ${project.cameraStatus === 'connected' ? 'on' : 'off'}`} onClick={cameraTap}>
-            <span className="flat-icon cam-icon"><CameraIcon /></span><strong>{project.cameraStatus === 'connected' ? '相机已连接' : '相机未连接'}</strong><em className={project.cameraStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} />
+            <span className="flat-icon cam-icon"><CameraIcon /></span><span className="device-status-copy"><strong>{project.cameraStatus === 'connected' ? '相机已连接' : '相机未连接'}</strong><small>{project.cameraStatus === 'connected' ? (connectedCameras.find((camera) => camera.id === activeCameraId)?.model || '相机型号未知') : '暂未连接相机'}</small></span><em className={project.cameraStatus === 'connected' ? 'status-dot success' : 'status-dot fail'} />
           </button>
-          <button className={`preset-top ${project.ftpStatus !== 'connected' ? 'locked' : ''}`} onClick={() => project.ftpStatus === 'connected' ? openPreset() : notify('FTP 连接成功后可设置预设')}><span className="flat-icon"><PresetIcon /></span><strong>预设</strong></button>
         </div>
         <div className="upload-summary-line"><span>已上传照片至百度网盘AI修图客户端</span><strong>{uploaded}/{project.photos.length}</strong></div>
         {!project.photos.length ? (
@@ -522,6 +521,7 @@ export default function App() {
           <div className="readonly-row"><span>创建时间</span><b>{project.createdAt}</b></div>
           <div className="readonly-row"><span>照片数量</span><b>{project.photos.length} 张</b></div>
           <div className="readonly-row"><span>已上传</span><b>{uploaded} 张</b></div>
+          <button className="settings-preset-entry" onClick={openPreset}><span><strong>预设</strong><small>当前预设为：{project.preset}</small></span><b aria-hidden="true">›</b></button>
         </section>
       </main>
       <div className="sticky-action"><button className="primary-button" onClick={saveSettings}>保存修改</button></div>
@@ -595,7 +595,7 @@ export default function App() {
   )
   const renderPresetPage = () => (
     <div className="screen preset-page">
-      {topbar('预设', () => { setSyncPrevious(project.preset === '同步上一张'); setPresetDraft(project.preset === '同步上一张' ? '无预设' : project.preset); setScreen('project') }, <button className="preset-reset" onClick={() => { setSyncPrevious(false); setPresetDraft('无预设') }}>重置</button>)}
+      {topbar('预设', () => { setSyncPrevious(project.preset === '同步上一张'); setPresetDraft(project.preset === '同步上一张' ? '无预设' : project.preset); setScreen('settings') }, <button className="preset-reset" onClick={() => { setSyncPrevious(false); setPresetDraft('无预设') }}>重置</button>)}
       <main className="content preset-page-content">
         <div className="preset-panel"><button className={`sync-previous-option ${syncPrevious ? 'active' : ''}`} onClick={() => { setSyncPrevious((value) => !value); setPresetDraft('无预设') }}><span>同步上一张</span><i>{syncPrevious ? '✓' : ''}</i></button><div className="preset-sync-tip">同步百度网盘AI修图客户端预设</div><div className="preset-tabs"><button className={presetTab === 'recommended' ? 'active' : ''} onClick={() => setPresetTab('recommended')}>推荐预设</button><button className={presetTab === 'mine' ? 'active' : ''} onClick={() => setPresetTab('mine')}>我的预设</button></div><div className={`preset-name-list ${syncPrevious ? 'disabled' : ''}`}>{(presetTab === 'recommended' ? RECOMMENDED_PRESETS : MY_PRESETS).map((name) => <button disabled={syncPrevious} className={!syncPrevious && presetDraft === name ? 'active' : ''} key={name} onClick={() => { setSyncPrevious(false); setPresetDraft(name) }}><span>{name}</span>{!syncPrevious && presetDraft === name && <b>✓</b>}</button>)}</div></div>
       </main>
