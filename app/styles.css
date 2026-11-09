@@ -192,8 +192,9 @@ img { display: block; }
 .project-settings-screen > .topbar { flex: 0 0 62px; grid-template-columns: 72px minmax(0, 1fr) 72px; }
 .project-settings-screen .settings-page { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 20px; }
 .project-settings-screen .settings-section-title { display: block; margin: 0 0 12px; color: #757b85; font-size: 13px; line-height: 20px; font-weight: 500; }
-.project-settings-screen .settings-details > .settings-section-title { color: #17191e; font-size: 15px; line-height: 22px; font-weight: 600; }
+.project-settings-screen .settings-details > .settings-section-title { color: #757b85; font-size: 15px; line-height: 22px; font-weight: 400; }
 .project-settings-screen .settings-details > .readonly-row { border-top: 0; }
+.project-settings-screen .settings-details > .readonly-row b { color: #757b85; font-weight: 400; }
 .project-settings-screen .settings-preset-entry { padding: 0; border-top: 0; }
 .project-settings-screen .settings-preset-entry .settings-section-title { margin-bottom: 6px; }
 .project-settings-screen .settings-preset-entry small { margin-top: 0; }
