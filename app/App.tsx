@@ -368,10 +368,12 @@ export default function App() {
 
   const saveSettings = () => {
     const name = nameInput.trim()
-    if (!name) { notify('项目名称不能为空'); return }
-    if (nameExists(name, activeProjectId)) { notify('项目名称已存在，请换一个名称'); return }
+    if (!name) { setNameInput(project.name); notify('项目名称不能为空，已恢复原名称'); return }
+    if (nameExists(name, activeProjectId)) { setNameInput(project.name); notify('项目名称已存在，已恢复原名称'); return }
+    setNameInput(name)
+    if (name === project.name) return
     patchProject(activeProjectId, { name })
-    notify('已保存'); setScreen('project')
+    notify('项目名称已保存')
   }
 
   const topbar = (title: string, back?: () => void, action?: React.ReactNode) => (
@@ -512,19 +514,23 @@ export default function App() {
   }
 
   const renderSettings = () => (
-    <div className="screen">
+    <div className="screen project-settings-screen">
       {topbar('项目设置', () => setScreen('project'))}
       <main className="content settings-page">
         <section className="setting-section">
-          <label className="field-label">项目名称</label>
-          <div className="name-input-wrap"><input className="text-field" value={nameInput} onChange={(e) => setNameInput(e.target.value)} maxLength={60} /><span>{Array.from(nameInput).length}/60</span></div>
+          <label className="settings-section-title" htmlFor="project-name">项目名称</label>
+          <div className="name-input-wrap"><input id="project-name" className="text-field" value={nameInput} onChange={(e) => setNameInput(e.target.value)} onBlur={saveSettings} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) e.currentTarget.blur() }} maxLength={60} /><span>{Array.from(nameInput).length}/60</span></div>
+        </section>
+        <section className="setting-section settings-details">
+          <h3 className="settings-section-title">项目详情</h3>
           <div className="readonly-row"><span>创建时间</span><b>{project.createdAt}</b></div>
           <div className="readonly-row"><span>照片数量</span><b>{project.photos.length} 张</b></div>
           <div className="readonly-row"><span>已上传</span><b>{uploaded} 张</b></div>
-          <button className="settings-preset-entry" onClick={openPreset}><span><strong>预设</strong><small>当前预设为：{project.preset}</small></span><b aria-hidden="true">›</b></button>
+        </section>
+        <section className="setting-section settings-preset-card">
+          <button className="settings-preset-entry" onClick={openPreset}><span><strong className="settings-section-title">预设</strong><small>当前预设：{project.preset}</small></span><b aria-hidden="true">›</b></button>
         </section>
       </main>
-      <div className="sticky-action"><button className="primary-button" onClick={saveSettings}>保存修改</button></div>
     </div>
   )
 

@@ -188,6 +188,14 @@ img { display: block; }
 .settings-preset-entry strong { display: block; font-size: 14px; }
 .settings-preset-entry small { display: block; margin-top: 6px; color: #757b85; font-size: 12px; line-height: 18px; overflow-wrap: anywhere; }
 .settings-preset-entry > b { color: #9aa0aa; font-size: 20px; font-weight: 400; }
+.project-settings-screen { display: flex; flex-direction: column; }
+.project-settings-screen > .topbar { flex: 0 0 62px; grid-template-columns: 72px minmax(0, 1fr) 72px; }
+.project-settings-screen .settings-page { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 20px; }
+.project-settings-screen .settings-section-title { display: block; margin: 0 0 12px; color: #757b85; font-size: 13px; line-height: 20px; font-weight: 500; }
+.project-settings-screen .settings-details > .readonly-row:first-of-type { border-top: 0; }
+.project-settings-screen .settings-preset-entry { padding: 0; border-top: 0; }
+.project-settings-screen .settings-preset-entry .settings-section-title { margin-bottom: 6px; }
+.project-settings-screen .settings-preset-entry small { margin-top: 0; }
 .project-top-actions .flat-icon { width: 27px; height: 27px; display: grid; place-items: center; flex: 0 0 27px; border-radius: 8px; color: var(--blue); background: #eaf1ff; }
 .project-top-actions .flat-icon-svg { width: 16px; height: 16px; fill: currentColor; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .project-top-actions .ftp-top.disconnected .flat-icon,
